@@ -1,0 +1,2569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>On Demand Commercial Collections | Matter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ─────────────────────────────────────────────
+       CSS DESIGN TOKENS  (ThinkOS-inspired palette)
+    ───────────────────────────────────────────── */
+    :root {
+      --bg-base:        #07080d;
+      --bg-surface:     #0d1117;
+      --bg-elevated:    #111827;
+      --bg-card:        rgba(255,255,255,0.04);
+      --bg-card-hover:  rgba(255,255,255,0.07);
+
+      --accent-primary:   #0ea5e9;
+      --accent-secondary: #7c3aed;
+      --accent-tertiary:  #10b981;
+      --accent-warm:      #f59e0b;
+
+      --gradient-brand:   linear-gradient(135deg, #0ea5e9 0%, #7c3aed 100%);
+      --gradient-green:   linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+      --gradient-warm:    linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+      --gradient-hero:    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(14,165,233,0.18) 0%, transparent 70%),
+                          radial-gradient(ellipse 50% 40% at 80% 80%, rgba(124,58,237,0.12) 0%, transparent 60%);
+
+      --text-primary:   #f0f6fc;
+      --text-secondary: #8b949e;
+      --text-muted:     #484f58;
+
+      --border-subtle:  rgba(255,255,255,0.07);
+      --border-default: rgba(255,255,255,0.12);
+      --border-strong:  rgba(14,165,233,0.35);
+
+      --glass-bg:       rgba(255,255,255,0.04);
+      --glass-border:   rgba(255,255,255,0.10);
+      --glass-blur:     blur(18px);
+
+      --shadow-card:    0 4px 24px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-glow:    0 0 40px rgba(14,165,233,0.18);
+      --shadow-glow-lg: 0 0 80px rgba(14,165,233,0.22), 0 0 160px rgba(124,58,237,0.12);
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+
+      --font-body:    'Inter', system-ui, sans-serif;
+      --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+
+      --nav-h: 72px;
+    }
+
+    /* ─── RESET ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE TEXTURE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ─── TYPOGRAPHY ─── */
+    h1,h2,h3,h4,h5 { font-family: var(--font-display); line-height: 1.15; }
+
+    .label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+    }
+    .label-green { color: var(--accent-tertiary); }
+    .label-purple { color: #a78bfa; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      padding: 0 48px;
+      background: rgba(7,8,13,0.72);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text-primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-logo-icon {
+      width: 32px; height: 32px;
+      background: var(--gradient-brand);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-links a:hover { color: var(--text-primary); background: var(--bg-card); }
+    .nav-cta {
+      margin-left: 16px;
+      background: var(--gradient-brand);
+      color: #fff !important;
+      padding: 8px 20px !important;
+      border-radius: var(--radius-sm) !important;
+      font-weight: 600 !important;
+    }
+    .nav-cta:hover { opacity: 0.88; background: var(--gradient-brand) !important; }
+
+    /* ─── LAYOUT HELPERS ─── */
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 32px;
+      position: relative;
+      z-index: 1;
+    }
+    section { padding: 100px 0; position: relative; }
+    .section-header { text-align: center; margin-bottom: 64px; }
+    .section-header h2 { font-size: clamp(28px, 4vw, 42px); margin: 10px 0 16px; }
+    .section-header p { font-size: 17px; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+    /* ─── GLASS CARD ─── */
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--shadow-card);
+      padding: 28px;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .glass-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(14,165,233,0.2);
+      transform: translateY(-2px);
+    }
+
+    /* ─── GRADIENT TEXT ─── */
+    .gradient-text {
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-text-green {
+      background: var(--gradient-green);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ═══════════════════════════════════════════
+       HERO SECTION
+    ═══════════════════════════════════════════ */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: var(--nav-h);
+      background: var(--gradient-hero), var(--bg-base);
+      overflow: hidden;
+    }
+    #hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-default), transparent);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(14,165,233,0.1);
+      border: 1px solid rgba(14,165,233,0.25);
+      border-radius: 100px;
+      padding: 6px 16px;
+      margin-bottom: 24px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      letter-spacing: 0.05em;
+    }
+    .hero-badge-dot {
+      width: 7px; height: 7px;
+      background: var(--accent-primary);
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+    .hero-title {
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 800;
+      line-height: 1.08;
+      margin-bottom: 24px;
+    }
+    .hero-sub {
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gradient-brand);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 13px 28px;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 4px 20px rgba(14,165,233,0.3);
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 13px 28px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-default);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .btn-secondary:hover {
+      background: var(--bg-card);
+      border-color: var(--accent-primary);
+      transform: translateY(-1px);
+    }
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .hero-stat-num {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .hero-stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ─── STIRLING SYSTEM VISUAL ─── */
+    .stirling-viz {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .stirling-glow {
+      position: absolute;
+      inset: -60px;
+      background: radial-gradient(ellipse at center, rgba(14,165,233,0.14) 0%, rgba(124,58,237,0.08) 50%, transparent 75%);
+      pointer-events: none;
+      animation: glow-pulse 4s ease-in-out infinite;
+    }
+    @keyframes glow-pulse {
+      0%,100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.06); }
+    }
+
+    .stirling-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid;
+      animation: ring-spin linear infinite;
+    }
+    .stirling-ring-1 {
+      inset: 12%;
+      border-color: rgba(14,165,233,0.18);
+      animation-duration: 40s;
+    }
+    .stirling-ring-2 {
+      inset: 22%;
+      border-color: rgba(124,58,237,0.15);
+      animation-duration: 28s;
+      animation-direction: reverse;
+    }
+    @keyframes ring-spin { to { transform: rotate(360deg); } }
+
+    .stirling-core {
+      position: absolute;
+      inset: 18%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow-lg), inset 0 0 40px rgba(14,165,233,0.06);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .stirling-core:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 100px rgba(14,165,233,0.3), 0 0 200px rgba(124,58,237,0.18);
+    }
+    .stirling-core-inner {
+      text-align: center;
+      padding: 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .stirling-core-icon {
+      font-size: 52px;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 16px rgba(14,165,233,0.5));
+    }
+    .stirling-core-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .stirling-core-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+    }
+    .stirling-core-scan {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+      animation: scan-line 3s ease-in-out infinite;
+    }
+    @keyframes scan-line {
+      0% { top: 0; opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    /* Orbital Nodes */
+    .stirling-nodes { position: absolute; inset: 0; }
+    .s-node {
+      position: absolute;
+      width: 68px; height: 68px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s, background 0.25s;
+      z-index: 10;
+    }
+    .s-node:hover {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 20px rgba(14,165,233,0.25);
+      transform: scale(1.12);
+      background: var(--bg-card-hover);
+      z-index: 20;
+    }
+    .s-node.active {
+      border-color: var(--accent-primary);
+      background: rgba(14,165,233,0.12);
+      box-shadow: 0 0 24px rgba(14,165,233,0.3);
+    }
+    .s-node-icon { font-size: 22px; }
+    .s-node-label { font-size: 8px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-secondary); text-align: center; line-height: 1.2; }
+    /* Positions: clock positions */
+    .s-node-top    { top: -2%;  left: 50%; transform: translateX(-50%); }
+    .s-node-tr     { top: 14%;  right: 4%; }
+    .s-node-right  { top: 50%;  right: -2%; transform: translateY(-50%); }
+    .s-node-br     { bottom: 14%; right: 4%; }
+    .s-node-bottom { bottom: -2%; left: 50%; transform: translateX(-50%); }
+    .s-node-bl     { bottom: 14%; left: 4%; }
+    .s-node-left   { top: 50%;  left: -2%; transform: translateY(-50%); }
+    .s-node-tl     { top: 14%;  left: 4%; }
+
+    /* Connector lines SVG */
+    .stirling-connectors {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* Node tooltip */
+    .node-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 11px;
+      color: var(--text-primary);
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 30;
+      box-shadow: var(--shadow-card);
+    }
+    .s-node:hover .node-tooltip { opacity: 1; }
+
+    /* Live indicator */
+    .stirling-live {
+      position: absolute;
+      top: 6%; right: 6%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.25);
+      border-radius: 100px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-tertiary);
+      z-index: 15;
+    }
+    .live-dot {
+      width: 6px; height: 6px;
+      background: var(--accent-tertiary);
+      border-radius: 50%;
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    /* Orbit data-flow dots */
+    .orbit-dot {
+      position: absolute;
+      width: 6px; height: 6px;
+      background: var(--accent-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-primary);
+      animation: orbit-travel linear infinite;
+    }
+    @keyframes orbit-travel {
+      0%   { offset-distance: 0%; }
+      100% { offset-distance: 100%; }
+    }
+
+    /* ═══════════════════════════════════════════
+       STIRLING SECTION (deep dive)
+    ═══════════════════════════════════════════ */
+    #stirling {
+      background: linear-gradient(180deg, var(--bg-base) 0%, var(--bg-surface) 50%, var(--bg-base) 100%);
+    }
+    .stirling-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      margin-top: 64px;
+    }
+    .stirling-detail-visual {
+      position: relative;
+    }
+    .stirling-diagram {
+      width: 100%;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-default);
+      background: var(--bg-elevated);
+      padding: 36px;
+      box-shadow: var(--shadow-glow);
+      position: relative;
+      overflow: hidden;
+    }
+    .stirling-diagram::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gradient-brand);
+    }
+    .diagram-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .diagram-title::before {
+      content: '';
+      width: 8px; height: 8px;
+      background: var(--accent-primary);
+      border-radius: 2px;
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      position: relative;
+    }
+    .flow-step:last-child { border-bottom: none; }
+    .flow-step-num {
+      width: 32px; height: 32px;
+      min-width: 32px;
+      background: var(--gradient-brand);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .flow-step-num.green { background: var(--gradient-green); }
+    .flow-step h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .flow-step p  { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .flow-arrow {
+      text-align: center;
+      font-size: 18px;
+      color: var(--accent-primary);
+      padding: 4px 0;
+      opacity: 0.5;
+    }
+    .stirling-features { display: flex; flex-direction: column; gap: 20px; }
+    .s-feature {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .s-feature-icon {
+      width: 44px; height: 44px;
+      min-width: 44px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .s-feature-icon.blue  { background: rgba(14,165,233,0.12); border: 1px solid rgba(14,165,233,0.2); }
+    .s-feature-icon.purple { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.2); }
+    .s-feature-icon.green  { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); }
+    .s-feature-icon.warm   { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.2); }
+    .s-feature h4 { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+    .s-feature p  { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+    /* ═══════════════════════════════════════════
+       BIN SELECTOR TAB SECTION
+    ═══════════════════════════════════════════ */
+    #bins {
+      background: var(--bg-surface);
+    }
+    .bins-tabs-wrapper {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .bins-tab-nav {
+      display: flex;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 6px;
+      gap: 4px;
+    }
+    .bin-tab-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .bin-tab-btn:hover { color: var(--text-primary); background: var(--bg-card); }
+    .bin-tab-btn.active {
+      background: var(--bg-base);
+      border-color: var(--border-default);
+      color: var(--text-primary);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .bin-tab-btn.active .tab-accent { color: var(--accent-primary); }
+    .tab-accent { font-size: 22px; }
+
+    .bin-tab-panel { display: none; padding: 48px; }
+    .bin-tab-panel.active { display: block; }
+
+    .bin-panel-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .bin-visual {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .bin-svg-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+    }
+    .bin-svg {
+      width: 100%;
+      filter: drop-shadow(0 12px 40px rgba(14,165,233,0.25));
+      transition: filter 0.3s;
+    }
+    .bin-svg:hover { filter: drop-shadow(0 20px 60px rgba(14,165,233,0.4)); }
+
+    .bin-badge {
+      position: absolute;
+      top: 12px; right: -12px;
+      background: var(--gradient-brand);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+    }
+    .bin-specs {
+      margin-top: 24px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .bin-spec-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+    .bin-spec-val { font-size: 18px; font-weight: 700; color: var(--accent-primary); }
+    .bin-spec-key { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .bin-info h3 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .bin-info .bin-tagline {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+    .bin-use-cases {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .use-case {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      transition: border-color 0.2s;
+    }
+    .use-case:hover { border-color: rgba(14,165,233,0.25); }
+    .use-case-icon { font-size: 20px; margin-top: 1px; }
+    .use-case h5 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .use-case p  { font-size: 13px; color: var(--text-secondary); }
+    .bin-schedule-note {
+      background: rgba(16,185,129,0.08);
+      border: 1px solid rgba(16,185,129,0.2);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--accent-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ═══════════════════════════════════════════
+       OPERATOR TABS (Commercial vs Council)
+    ═══════════════════════════════════════════ */
+    #operators {
+      background: var(--bg-base);
+    }
+    .op-tabs-nav {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 48px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 6px;
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .op-tab-btn {
+      flex: 1;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .op-tab-btn.active {
+      background: var(--gradient-brand);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(14,165,233,0.25);
+    }
+    .op-tab-btn:not(.active):hover { color: var(--text-primary); background: var(--bg-card); }
+    .op-panel { display: none; }
+    .op-panel.active { display: block; }
+    .op-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .op-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: all 0.25s;
+    }
+    .op-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(14,165,233,0.25);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-glow);
+    }
+    .op-card-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .op-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+    .op-card p  { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .op-card-tag {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--accent-primary);
+      background: rgba(14,165,233,0.1);
+      border: 1px solid rgba(14,165,233,0.2);
+      border-radius: 100px;
+      padding: 3px 10px;
+    }
+
+    /* ═══════════════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════════════ */
+    #how {
+      background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-base) 100%);
+    }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      position: relative;
+      margin-top: 64px;
+    }
+    .how-steps::before {
+      content: '';
+      position: absolute;
+      top: 36px; left: 12.5%; right: 12.5%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+      opacity: 0.3;
+    }
+    .how-step {
+      text-align: center;
+      padding: 0 16px;
+      position: relative;
+    }
+    .how-step-num {
+      width: 72px; height: 72px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 26px;
+      position: relative;
+      z-index: 2;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .how-step:hover .how-step-num {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 20px rgba(14,165,233,0.25);
+    }
+    .how-step h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .how-step p  { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .how-step-tag {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-tertiary);
+    }
+
+    /* ═══════════════════════════════════════════
+       FEATURES GRID
+    ═══════════════════════════════════════════ */
+    #features {
+      background: var(--bg-base);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gradient-brand);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .feature-card:hover::after { transform: scaleX(1); }
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(14,165,233,0.2);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 18px;
+    }
+    .fi-blue   { background: rgba(14,165,233,0.1);  border: 1px solid rgba(14,165,233,0.2);  }
+    .fi-purple { background: rgba(124,58,237,0.1);  border: 1px solid rgba(124,58,237,0.2);  }
+    .fi-green  { background: rgba(16,185,129,0.1);  border: 1px solid rgba(16,185,129,0.2);  }
+    .fi-warm   { background: rgba(245,158,11,0.1);  border: 1px solid rgba(245,158,11,0.2);  }
+    .fi-red    { background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.2);   }
+    .fi-cyan   { background: rgba(6,182,212,0.1);   border: 1px solid rgba(6,182,212,0.2);   }
+    .feature-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+    .feature-card p  { font-size: 13px; color: var(--text-secondary); line-height: 1.65; }
+
+    /* ═══════════════════════════════════════════
+       METRICS BANNER
+    ═══════════════════════════════════════════ */
+    #metrics {
+      padding: 60px 0;
+      background: linear-gradient(135deg, rgba(14,165,233,0.07) 0%, rgba(124,58,237,0.07) 100%);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      text-align: center;
+    }
+    .metric-val {
+      font-family: var(--font-display);
+      font-size: 44px;
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .metric-label { font-size: 14px; color: var(--text-secondary); }
+    .metric-divider { width: 1px; background: var(--border-subtle); margin: auto; }
+
+    /* ═══════════════════════════════════════════
+       CTA SECTION
+    ═══════════════════════════════════════════ */
+    #cta {
+      background: var(--bg-surface);
+      padding: 120px 0;
+    }
+    .cta-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: 72px 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-glow-lg);
+    }
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(14,165,233,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-box h2 { font-size: clamp(28px,4vw,42px); margin-bottom: 18px; position: relative; z-index: 1; }
+    .cta-box p  { font-size: 17px; color: var(--text-secondary); margin-bottom: 40px; position: relative; z-index: 1; max-width: 540px; margin-left: auto; margin-right: auto; }
+    .cta-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════ */
+    footer {
+      background: var(--bg-base);
+      border-top: 1px solid var(--border-subtle);
+      padding: 56px 0 32px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 12px;
+      line-height: 1.7;
+    }
+    .footer-col h5 {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--text-primary); }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .footer-bottom p { font-size: 12px; color: var(--text-muted); }
+    .footer-flags { display: flex; gap: 6px; font-size: 18px; }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .hero-grid      { grid-template-columns: 1fr; gap: 48px; }
+      .stirling-viz   { max-width: 380px; }
+      .stirling-detail-grid { grid-template-columns: 1fr; }
+      .bin-panel-grid { grid-template-columns: 1fr; }
+      .op-cards-grid  { grid-template-columns: repeat(2, 1fr); }
+      .how-steps      { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+      .how-steps::before { display: none; }
+      .features-grid  { grid-template-columns: repeat(2, 1fr); }
+      .metrics-grid   { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid    { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .container { padding: 0 20px; }
+      section { padding: 64px 0; }
+      .op-cards-grid  { grid-template-columns: 1fr; }
+      .features-grid  { grid-template-columns: 1fr; }
+      .metrics-grid   { grid-template-columns: 1fr 1fr; }
+      .footer-grid    { grid-template-columns: 1fr; }
+      .cta-box        { padding: 40px 24px; }
+      .bins-tab-nav   { flex-direction: column; }
+      .bin-tab-panel  { padding: 24px; }
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+
+    /* ─── UTILITY ─── */
+    .mb-0 { margin-bottom: 0 !important; }
+    .text-center { text-align: center; }
+    .mt-32 { margin-top: 32px; }
+
+    /* ═══════════════════════════════════════════
+       COUNCIL MODAL
+    ═══════════════════════════════════════════ */
+    .hero-badge {
+      cursor: pointer;
+      border: none;
+      font-family: var(--font-body);
+      background: rgba(14,165,233,0.1);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(14,165,233,0.25);
+      border-radius: 100px;
+      padding: 6px 16px;
+      margin-bottom: 24px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      letter-spacing: 0.05em;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .hero-badge:hover {
+      background: rgba(14,165,233,0.18);
+      border-color: rgba(14,165,233,0.45);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 860px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6), var(--shadow-glow);
+      transform: translateY(20px) scale(0.97);
+      transition: transform 0.25s;
+      overflow: hidden;
+    }
+    .modal-overlay.open .modal-box {
+      transform: translateY(0) scale(1);
+    }
+    .modal-header {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      position: relative;
+    }
+    .modal-header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gradient-brand);
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .modal-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px; right: 24px;
+      width: 36px; height: 36px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1;
+      transition: background 0.2s, color 0.2s;
+    }
+    .modal-close:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+    /* Search bar */
+    .modal-search-wrap {
+      padding: 16px 32px 0;
+      flex-shrink: 0;
+    }
+    .modal-search {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 10px 16px 10px 40px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.2s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='7' stroke='%238b949e' stroke-width='2'/%3E%3Cpath d='M16.5 16.5 21 21' stroke='%238b949e' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 14px center;
+    }
+    .modal-search:focus { border-color: var(--accent-primary); }
+    .modal-search::placeholder { color: var(--text-muted); }
+
+    /* State tabs */
+    .modal-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 14px 32px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex-shrink: 0;
+    }
+    .modal-tabs::-webkit-scrollbar { display: none; }
+    .mtab {
+      flex-shrink: 0;
+      padding: 7px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .mtab:hover { color: var(--text-primary); background: var(--bg-card); }
+    .mtab.active {
+      background: var(--gradient-brand);
+      color: #fff;
+      border-color: transparent;
+    }
+    .mtab .mtab-count {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border-radius: 100px;
+      padding: 1px 7px;
+      font-size: 10px;
+      margin-left: 5px;
+    }
+    .mtab:not(.active) .mtab-count {
+      background: rgba(255,255,255,0.07);
+    }
+
+    /* Council list */
+    .modal-body {
+      overflow-y: auto;
+      padding: 20px 32px;
+      flex: 1;
+    }
+    .modal-body::-webkit-scrollbar { width: 4px; }
+    .modal-body::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 2px; }
+
+    .state-panel { display: none; }
+    .state-panel.active { display: block; }
+
+    .state-group-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 16px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .state-group-label:first-child { margin-top: 0; }
+
+    .council-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 680px) { .council-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .council-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--text-secondary);
+      transition: all 0.15s;
+      cursor: default;
+    }
+    .council-pill:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(14,165,233,0.2);
+      color: var(--text-primary);
+    }
+    .council-pill::before {
+      content: '';
+      width: 6px; height: 6px;
+      min-width: 6px;
+      background: var(--accent-tertiary);
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+    .council-pill.hidden { display: none; }
+
+    /* No results */
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+      display: none;
+    }
+
+    /* CTA banner */
+    .modal-cta {
+      flex-shrink: 0;
+      margin: 0 32px 24px;
+      background: linear-gradient(135deg, rgba(14,165,233,0.08) 0%, rgba(124,58,237,0.08) 100%);
+      border: 1px solid rgba(14,165,233,0.2);
+      border-radius: var(--radius-lg);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .modal-cta-text {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .modal-cta-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .modal-cta-copy strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .modal-cta-copy span {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .modal-cta-btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--gradient-brand);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+    .modal-cta-btn:hover { opacity: 0.88; }
+
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">♻</div>
+    Matter - On Demand
+  </a>
+  <ul class="nav-links">
+    <li><a href="#stirling">ThinkOS - On Demand</a></li>
+    <li><a href="#bins">Bin Sizes</a></li>
+    <li><a href="#operators">Operators</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#cta" class="nav-cta">Get Started</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-grid">
+
+      <!-- Left: Copy -->
+      <div>
+        <button class="hero-badge" onclick="openCouncilModal()" title="View participating councils">
+          <div class="hero-badge-dot"></div>
+          On Demand · Australia-Wide
+          <span style="margin-left:4px;opacity:0.7;font-size:10px;">▼ View Councils</span>
+        </button>
+        <h1 class="hero-title">
+          Commercial Waste<br/>
+          <span class="gradient-text">On Your Schedule.</span>
+        </h1>
+        <p class="hero-sub">
+          Australia's most flexible commercial bin collection service for councils and businesses.
+          120&nbsp;lt and 240&nbsp;lt wheelie bins collected exactly when you need them —
+          no fixed routes, no missed lifts, no phone calls, no emails — Fully Automated.
+        </p>
+        <div class="hero-actions">
+          <a href="https://stirlingcollectionsystem.com.au" target="_blank" rel="noopener" class="btn-primary">
+            Explore ThinkOS - On Demand
+            <span>↗</span>
+          </a>
+          <a href="#bins" class="btn-secondary">
+            View Bin Options
+            <span>→</span>
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-num">240 lt</div>
+            <div class="hero-stat-label">Large Commercial Bin</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">120 lt</div>
+            <div class="hero-stat-label">Compact Commercial Bin</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">On Demand</div>
+            <div class="hero-stat-label">Collection Scheduling</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: ThinkOS Interactive Diagram -->
+      <div class="stirling-viz">
+        <div class="stirling-glow"></div>
+        <div class="stirling-ring stirling-ring-1"></div>
+        <div class="stirling-ring stirling-ring-2"></div>
+
+        <!-- Live badge -->
+        <div class="stirling-live"><div class="live-dot"></div>Live System</div>
+
+        <!-- Central Core -->
+        <div class="stirling-core" onclick="coreClick()" title="ThinkOS - On Demand">
+          <div class="stirling-core-scan"></div>
+          <div class="stirling-core-inner">
+            <div class="stirling-core-icon">🗑️</div>
+            <div class="stirling-core-title">ThinkOS</div>
+            <div class="stirling-core-sub">On Demand</div>
+          </div>
+        </div>
+
+        <!-- Orbital Nodes -->
+        <div class="stirling-nodes">
+          <div class="s-node s-node-top" onclick="activateNode(this)">
+            <span class="s-node-icon">📡</span>
+            <span class="s-node-label">Smart<br/>Sensor</span>
+            <div class="node-tooltip">RFID & fill-level sensing</div>
+          </div>
+          <div class="s-node s-node-tr" onclick="activateNode(this)">
+            <span class="s-node-icon">📱</span>
+            <span class="s-node-label">Driver<br/>App</span>
+            <div class="node-tooltip">Real-time driver manifest</div>
+          </div>
+          <div class="s-node s-node-right" onclick="activateNode(this)">
+            <span class="s-node-icon">🗺️</span>
+            <span class="s-node-label">Route<br/>AI</span>
+            <div class="node-tooltip">Dynamic route optimisation</div>
+          </div>
+          <div class="s-node s-node-br" onclick="activateNode(this)">
+            <span class="s-node-icon">📊</span>
+            <span class="s-node-label">Council<br/>Portal</span>
+            <div class="node-tooltip">Council reporting dashboard</div>
+          </div>
+          <div class="s-node s-node-bottom" onclick="activateNode(this)">
+            <span class="s-node-icon">♻️</span>
+            <span class="s-node-label">Waste<br/>Audit</span>
+            <div class="node-tooltip">Waste stream analytics</div>
+          </div>
+          <div class="s-node s-node-bl" onclick="activateNode(this)">
+            <span class="s-node-icon">🏢</span>
+            <span class="s-node-label">Business<br/>Portal</span>
+            <div class="node-tooltip">Operator booking & tracking</div>
+          </div>
+          <div class="s-node s-node-left" onclick="activateNode(this)">
+            <span class="s-node-icon">⏰</span>
+            <span class="s-node-label">On<br/>Demand</span>
+            <div class="node-tooltip">Request same-day collection</div>
+          </div>
+          <div class="s-node s-node-tl" onclick="activateNode(this)">
+            <span class="s-node-icon">📋</span>
+            <span class="s-node-label">Compliance<br/>Log</span>
+            <div class="node-tooltip">Audit-ready service records</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ METRICS ═══════════ -->
+<div id="metrics">
+  <div class="container">
+    <div class="metrics-grid">
+      <div>
+        <div class="metric-val">98%</div>
+        <div class="metric-label">On-time collection rate</div>
+      </div>
+      <div>
+        <div class="metric-val">240 lt</div>
+        <div class="metric-label">Max wheelie bin capacity</div>
+      </div>
+      <div>
+        <div class="metric-val">4 hr</div>
+        <div class="metric-label">Average response window</div>
+      </div>
+      <div>
+        <div class="metric-val">100%</div>
+        <div class="metric-label">Digitally tracked lifts</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ STIRLING SYSTEM ═══════════ -->
+<section id="stirling">
+  <div class="container">
+    <div class="section-header">
+      <div class="label">The Core Platform</div>
+      <h2>The <span class="gradient-text">ThinkOS - On Demand</span></h2>
+      <p>An end-to-end digital platform connecting wheelie bins, collection crews, commercial operators and councils into a single intelligent network.</p>
+    </div>
+
+    <div class="stirling-detail-grid">
+
+      <!-- Left: Flow diagram -->
+      <div class="stirling-detail-visual">
+        <div class="stirling-diagram">
+          <div class="diagram-title">Service Flow — How a Collection Happens</div>
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <div>
+              <h4>Request Triggered</h4>
+              <p>Operator or council submits a collection request via the ThinkOS portal, mobile app, or API. Fill-level sensors can also trigger requests automatically.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num" style="background:var(--gradient-green)">2</div>
+            <div>
+              <h4>Route Optimised</h4>
+              <p>ThinkOS's AI engine slots the job into the nearest available crew's route, minimising empty kilometres and fuel consumption across the fleet.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div>
+              <h4>Driver Dispatched</h4>
+              <p>Driver receives turn-by-turn instructions, bin location, and access notes on the ThinkOS Driver App. RFID confirms the correct bin is lifted.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num" style="background:var(--gradient-green)">4</div>
+            <div>
+              <h4>Lift Recorded & Reported</h4>
+              <p>Collection is automatically logged with GPS timestamp, weight data, and bin ID. Operator and council portals update in real time.</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <div>
+              <h4>Invoice & Compliance</h4>
+              <p>Usage-based invoicing issued automatically. Waste audit reports and council compliance documentation generated with zero manual effort.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Feature highlights -->
+      <div class="stirling-features">
+        <div style="margin-bottom:8px">
+          <div class="label">System Capabilities</div>
+          <h3 style="font-size:24px;margin-top:8px;">Everything connected.<br/>Nothing missed.</h3>
+          <p style="color:var(--text-secondary);font-size:14px;margin-top:10px;line-height:1.7;">
+            ThinkOS replaces manual routing spreadsheets, phone call bookings, and paper dockets with a unified digital platform purpose-built for Australian commercial waste operations.
+          </p>
+        </div>
+
+        <div class="s-feature">
+          <div class="s-feature-icon blue">📡</div>
+          <div>
+            <h4>RFID Bin Tracking</h4>
+            <p>Every 120 lt and 240 lt wheelie bin is tagged with a unique RFID identifier. Lifts are confirmed automatically — no more disputed service records or missed collections.</p>
+          </div>
+        </div>
+        <div class="s-feature">
+          <div class="s-feature-icon purple">🗺️</div>
+          <div>
+            <h4>Dynamic Route Optimisation</h4>
+            <p>On-demand requests are intelligently inserted into live routes. ThinkOS's algorithm reduces total drive time by up to 30% compared to static schedule planning.</p>
+          </div>
+        </div>
+        <div class="s-feature">
+          <div class="s-feature-icon green">📊</div>
+          <div>
+            <h4>Dual Operator Portals</h4>
+            <p>Separate dashboards for commercial operators and councils. Councils see aggregated service data and compliance reports; operators see bin-level booking and billing details.</p>
+          </div>
+        </div>
+        <div class="s-feature">
+          <div class="s-feature-icon warm">♻️</div>
+          <div>
+            <h4>Waste Stream Analytics</h4>
+            <p>Track general waste, recyclables, and organics by bin, by site, and by precinct. Data feeds directly into council sustainability reporting requirements.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ BIN SELECTOR ═══════════ -->
+<section id="bins">
+  <div class="container">
+    <div class="section-header">
+      <div class="label label-green">Bin Options</div>
+      <h2>Choose Your <span class="gradient-text-green">Collection Format</span></h2>
+      <p>Two bin sizes, both fully integrated with ThinkOS - On Demand and available for on-demand scheduling.</p>
+    </div>
+
+    <div class="bins-tabs-wrapper">
+      <div class="bins-tab-nav">
+        <button class="bin-tab-btn active" onclick="switchBinTab('240')">
+          <span class="tab-accent">🗑️</span>
+          <div>
+            <div>240 Litre Wheelie Bin</div>
+            <div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px;">High-volume commercial</div>
+          </div>
+        </button>
+        <button class="bin-tab-btn" onclick="switchBinTab('120')">
+          <span class="tab-accent">🪣</span>
+          <div>
+            <div>120 Litre Wheelie Bin</div>
+            <div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px;">Compact commercial</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- 240 lt Panel -->
+      <div class="bin-tab-panel active" id="panel-240">
+        <div class="bin-panel-grid">
+          <div class="bin-visual">
+            <div class="bin-svg-wrapper">
+              <div class="bin-badge">240 lt</div>
+              <!-- SVG Wheelie Bin 240L -->
+              <svg class="bin-svg" viewBox="0 0 200 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Bin body -->
+                <rect x="30" y="70" width="140" height="180" rx="10" fill="#1a2332"/>
+                <rect x="30" y="70" width="140" height="180" rx="10" fill="url(#binGrad240)" opacity="0.6"/>
+                <!-- Lid -->
+                <rect x="22" y="44" width="156" height="34" rx="8" fill="#0ea5e9" opacity="0.9"/>
+                <rect x="22" y="44" width="156" height="34" rx="8" fill="url(#lidGrad)" opacity="0.4"/>
+                <!-- Handle on lid -->
+                <rect x="70" y="40" width="60" height="10" rx="5" fill="#0d1117"/>
+                <!-- Body detail lines -->
+                <rect x="30" y="120" width="140" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
+                <rect x="30" y="170" width="140" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
+                <rect x="30" y="220" width="140" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
+                <!-- RFID chip indicator -->
+                <rect x="56" y="88" width="88" height="20" rx="4" fill="rgba(14,165,233,0.12)" stroke="rgba(14,165,233,0.3)" stroke-width="1"/>
+                <text x="100" y="102" text-anchor="middle" font-family="monospace" font-size="9" fill="#0ea5e9">STIRLING RFID</text>
+                <!-- Volume label -->
+                <text x="100" y="148" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" font-weight="800" fill="rgba(255,255,255,0.85)">240</text>
+                <text x="100" y="166" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" letter-spacing="2">LITRES</text>
+                <!-- Wheels -->
+                <circle cx="62" cy="254" r="14" fill="#0d1117" stroke="#1a2332" stroke-width="2"/>
+                <circle cx="62" cy="254" r="7" fill="#0ea5e9" opacity="0.4"/>
+                <circle cx="138" cy="254" r="14" fill="#0d1117" stroke="#1a2332" stroke-width="2"/>
+                <circle cx="138" cy="254" r="7" fill="#0ea5e9" opacity="0.4"/>
+                <!-- Axle -->
+                <rect x="62" y="248" width="76" height="4" rx="2" fill="#1a2332"/>
+                <!-- Shine highlight -->
+                <rect x="36" y="76" width="12" height="160" rx="6" fill="rgba(255,255,255,0.04)"/>
+                <defs>
+                  <linearGradient id="binGrad240" x1="30" y1="70" x2="170" y2="250" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.25"/>
+                    <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.1"/>
+                  </linearGradient>
+                  <linearGradient id="lidGrad" x1="22" y1="44" x2="178" y2="78" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#fff" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="bin-specs">
+              <div class="bin-spec-item"><div class="bin-spec-val">240 lt</div><div class="bin-spec-key">Capacity</div></div>
+              <div class="bin-spec-item"><div class="bin-spec-val">1065mm</div><div class="bin-spec-key">Height</div></div>
+              <div class="bin-spec-item"><div class="bin-spec-val">580mm</div><div class="bin-spec-key">Width</div></div>
+              <div class="bin-spec-item"><div class="bin-spec-val">RFID</div><div class="bin-spec-key">Tracking</div></div>
+            </div>
+          </div>
+
+          <div class="bin-info">
+            <div class="label">High-Volume Commercial</div>
+            <h3>240 Litre Wheelie Bin</h3>
+            <p class="bin-tagline">The backbone of commercial waste management for Australian businesses and councils.</p>
+
+            <div class="bin-use-cases">
+              <div class="use-case">
+                <div class="use-case-icon">🏪</div>
+                <div>
+                  <h5>Retail & Hospitality</h5>
+                  <p>Ideal for restaurants, cafes, hotels, and retail precincts generating high daily waste volumes. On-demand scheduling means collection happens when bins are full — not on a fixed calendar.</p>
+                </div>
+              </div>
+              <div class="use-case">
+                <div class="use-case-icon">🏗️</div>
+                <div>
+                  <h5>Commercial Premises</h5>
+                  <p>Office buildings, industrial sites, and mixed-use developments use 240 lt bins for general waste, co-mingled recycling, and organics streams managed under a single ThinkOS account.</p>
+                </div>
+              </div>
+              <div class="use-case">
+                <div class="use-case-icon">🏙️</div>
+                <div>
+                  <h5>Council Public Spaces</h5>
+                  <p>Parks, streetscapes, markets, and event precincts managed by councils. ThinkOS's sensor triggers alert crews before overflow — eliminating litter and public complaints.</p>
+                </div>
+              </div>
+              <div class="use-case">
+                <div class="use-case-icon">🏘️</div>
+                <div>
+                  <h5>Strata & Multi-Residential</h5>
+                  <p>Body corporate and strata managers replace unpredictable fixed schedules with demand-responsive collection, reducing skip bin hire costs significantly.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bin-schedule-note">
+              <span>✅</span>
+              On-demand collection available 7 days — book via the ThinkOS portal, app or API. Same-day service available in metropolitan areas.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 120 lt Panel -->
+      <div class="bin-tab-panel" id="panel-120">
+        <div class="bin-panel-grid">
+          <div class="bin-visual">
+            <div class="bin-svg-wrapper">
+              <div class="bin-badge" style="background:var(--gradient-green)">120 lt</div>
+              <!-- SVG Wheelie Bin 120L -->
+              <svg class="bin-svg" viewBox="0 0 200 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="42" y="80" width="116" height="162" rx="10" fill="#1a2332"/>
+                <rect x="42" y="80" width="116" height="162" rx="10" fill="url(#binGrad120)" opacity="0.6"/>
+                <rect x="34" y="54" width="132" height="32" rx="8" fill="#10b981" opacity="0.9"/>
+                <rect x="34" y="54" width="132" height="32" rx="8" fill="url(#lidGrad120)" opacity="0.4"/>
+                <rect x="74" y="50" width="52" height="10" rx="5" fill="#0d1117"/>
+                <rect x="42" y="122" width="116" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
+                <rect x="42" y="162" width="116" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
+                <rect x="42" y="202" width="116" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
+                <rect x="62" y="94" width="76" height="18" rx="4" fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+                <text x="100" y="107" text-anchor="middle" font-family="monospace" font-size="8" fill="#10b981">STIRLING RFID</text>
+                <text x="100" y="152" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" font-weight="800" fill="rgba(255,255,255,0.85)">120</text>
+                <text x="100" y="170" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" letter-spacing="2">LITRES</text>
+                <circle cx="68" cy="254" r="13" fill="#0d1117" stroke="#1a2332" stroke-width="2"/>
+                <circle cx="68" cy="254" r="7" fill="#10b981" opacity="0.4"/>
+                <circle cx="132" cy="254" r="13" fill="#0d1117" stroke="#1a2332" stroke-width="2"/>
+                <circle cx="132" cy="254" r="7" fill="#10b981" opacity="0.4"/>
+                <rect x="68" y="248" width="64" height="4" rx="2" fill="#1a2332"/>
+                <rect x="48" y="86" width="10" height="148" rx="5" fill="rgba(255,255,255,0.04)"/>
+                <defs>
+                  <linearGradient id="binGrad120" x1="42" y1="80" x2="158" y2="242" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+                    <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.1"/>
+                  </linearGradient>
+                  <linearGradient id="lidGrad120" x1="34" y1="54" x2="166" y2="86" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#fff" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="bin-specs">
+              <div class="bin-spec-item"><div class="bin-spec-val" style="color:var(--accent-tertiary)">120 lt</div><div class="bin-spec-key">Capacity</div></div>
+              <div class="bin-spec-item"><div class="bin-spec-val" style="color:var(--accent-tertiary)">940mm</div><div class="bin-spec-key">Height</div></div>
+              <div class="bin-spec-item"><div class="bin-spec-val" style="color:var(--accent-tertiary)">480mm</div><div class="bin-spec-key">Width</div></div>
+              <div class="bin-spec-item"><div class="bin-spec-val" style="color:var(--accent-tertiary)">RFID</div><div class="bin-spec-key">Tracking</div></div>
+            </div>
+          </div>
+
+          <div class="bin-info">
+            <div class="label label-green">Compact Commercial</div>
+            <h3>120 Litre Wheelie Bin</h3>
+            <p class="bin-tagline">The nimble choice for space-constrained sites and lower-volume commercial generators.</p>
+
+            <div class="bin-use-cases">
+              <div class="use-case">
+                <div class="use-case-icon">☕</div>
+                <div>
+                  <h5>Small Food & Beverage</h5>
+                  <p>Coffee shops, food trucks, kiosks, and bakeries with limited bin storage space. Two 120 lt bins in a tight courtyard replace one bulky larger unit without compromising capacity.</p>
+                </div>
+              </div>
+              <div class="use-case">
+                <div class="use-case-icon">🏥</div>
+                <div>
+                  <h5>Medical & Allied Health</h5>
+                  <p>Clinics, dental practices, and allied health operators requiring separate streams for clinical and general waste in a compact, hygienic footprint.</p>
+                </div>
+              </div>
+              <div class="use-case">
+                <div class="use-case-icon">🏫</div>
+                <div>
+                  <h5>Schools & Institutions</h5>
+                  <p>Educational facilities and community organisations benefit from the flexibility of 120 lt bins distributed across multiple zones — all tracked centrally through ThinkOS.</p>
+                </div>
+              </div>
+              <div class="use-case">
+                <div class="use-case-icon">🛒</div>
+                <div>
+                  <h5>Markets & Events</h5>
+                  <p>Temporary markets and events managed by councils or operators can deploy and retrieve 120 lt bins on-demand — no ongoing service contracts required.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bin-schedule-note" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.2);">
+              <span>✅</span>
+              On-demand collection available 7 days. 120 lt bins ideal for pairing with 240 lt bins across multi-stream waste separation.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ OPERATORS ═══════════ -->
+<section id="operators">
+  <div class="container">
+    <div class="section-header">
+      <div class="label label-purple">Built For You</div>
+      <h2>Designed for <span class="gradient-text">Both Operators</span></h2>
+      <p>ThinkOS serves commercial operators and councils with dedicated features for each — on a single integrated platform.</p>
+    </div>
+
+    <div class="op-tabs-nav" id="opTabs">
+      <button class="op-tab-btn active" onclick="switchOpTab('commercial')">🏢 Commercial Operators</button>
+      <button class="op-tab-btn" onclick="switchOpTab('council')">🏛️ Council Operators</button>
+      <button class="op-tab-btn" onclick="switchOpTab('brokerage')">🤝 Brokerage</button>
+    </div>
+
+    <!-- Commercial Panel -->
+    <div class="op-panel active" id="op-commercial">
+      <div class="op-cards-grid">
+        <div class="op-card">
+          <span class="op-card-icon">📲</span>
+          <h4>Self-Service Booking Portal</h4>
+          <p>Commercial operators book, reschedule, and cancel collections 24/7 through the ThinkOS web portal or mobile app. No phone calls, no manual bookings, no delays.</p>
+          <div class="op-card-tag">Web + Mobile</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">💳</span>
+          <h4>Usage-Based Billing</h4>
+          <p>Only pay for collections that happen. ThinkOS generates automated invoices per lift with bin ID, timestamp, and weight data attached — no disputes, no manual reconciliation.</p>
+          <div class="op-card-tag">Automated</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">🔔</span>
+          <h4>Real-Time Collection Alerts</h4>
+          <p>Push notifications and email alerts confirm when your bins have been lifted. Missed collection? An automatic alert is raised and a re-collection is scheduled within 4 hours.</p>
+          <div class="op-card-tag">Push + Email</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">📈</span>
+          <h4>Waste Volume Reporting</h4>
+          <p>View monthly and quarterly waste generation trends by stream. Use the data to right-size your bin fleet, reduce costs, and demonstrate environmental performance to stakeholders.</p>
+          <div class="op-card-tag">Analytics</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">🔗</span>
+          <h4>API Integration</h4>
+          <p>Connect ThinkOS directly to your facilities management platform, ERP, or property management system via our REST API. Automate collections based on fill-level thresholds or business events.</p>
+          <div class="op-card-tag">REST API</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">🗂️</span>
+          <h4>Multi-Site Management</h4>
+          <p>Manage 240 lt and 120 lt bins across multiple sites from a single login. Assign cost centres, set service frequencies per site, and export consolidated reports at entity level.</p>
+          <div class="op-card-tag">Enterprise Ready</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Brokerage Panel -->
+    <div class="op-panel" id="op-brokerage">
+      <div style="text-align:center; padding: 80px 24px;">
+        <div style="font-size:64px; margin-bottom:24px;">🔍</div>
+        <h3 style="font-family:var(--font-display); font-size:32px; margin-bottom:16px;">Find A <span class="gradient-text">ThinkOS Operator</span> in Your Area</h3>
+        <p style="color:var(--text-secondary); font-size:16px; max-width:560px; margin:0 auto 40px;">Connect with verified ThinkOS operators servicing your region. Browse available operators, compare service coverage, and request a quote — all through the platform.</p>
+        <div class="op-cards-grid" style="max-width:900px; margin:0 auto;">
+          <div class="op-card">
+            <span class="op-card-icon">📍</span>
+            <h4>Search by Location</h4>
+            <p>Enter your suburb or postcode to discover ThinkOS operators with active coverage in your area. See real-time availability and service zones on an interactive map.</p>
+            <div class="op-card-tag">Location-Based</div>
+          </div>
+          <div class="op-card">
+            <span class="op-card-icon">⭐</span>
+            <h4>Verified Operators</h4>
+            <p>Every operator on the brokerage is licensed, insured, and running ThinkOS — meaning full RFID tracking, automated invoicing, and data transparency from day one.</p>
+            <div class="op-card-tag">Trust & Safety</div>
+          </div>
+          <div class="op-card">
+            <span class="op-card-icon">📩</span>
+            <h4>Request a Quote</h4>
+            <p>Select your bin size, waste stream, and collection frequency. ThinkOS sends your request to matched operators who respond with competitive, usage-based pricing.</p>
+            <div class="op-card-tag">Instant Matching</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Council Panel -->
+    <div class="op-panel" id="op-council">
+      <div class="op-cards-grid">
+        <div class="op-card">
+          <span class="op-card-icon">🗺️</span>
+          <h4>Precinct-Level Mapping</h4>
+          <p>Visualise all 120 lt and 240 lt bin assets across your LGA on a live map. Track service status, fill levels, and collection history by precinct, ward, or street with one click.</p>
+          <div class="op-card-tag">GIS Dashboard</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">📋</span>
+          <h4>Compliance Reporting</h4>
+          <p>Automated reports for EPA requirements, waste levy reporting, and council environmental dashboards. ThinkOS handles the data aggregation — your team signs off and submits.</p>
+          <div class="op-card-tag">Audit Ready</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">🚨</span>
+          <h4>Overflow & Hotspot Alerts</h4>
+          <p>Receive instant alerts when bins in public spaces approach capacity. ThinkOS automatically dispatches the nearest crew to prevent overflow and the associated public complaints.</p>
+          <div class="op-card-tag">Smart Alerts</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">🌿</span>
+          <h4>Sustainability Metrics</h4>
+          <p>Track diversion rates, tonnes avoided from landfill, carbon emissions from collection, and recycling stream contamination — all aligned to council sustainability strategy KPIs.</p>
+          <div class="op-card-tag">ESG Reporting</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">🤝</span>
+          <h4>Contractor Management</h4>
+          <p>Councils using multiple collection contractors can onboard all of them into ThinkOS. Unified data, unified reporting, one portal — regardless of who holds the collection contract.</p>
+          <div class="op-card-tag">Multi-Contractor</div>
+        </div>
+        <div class="op-card">
+          <span class="op-card-icon">📅</span>
+          <h4>Event & Seasonal Flex</h4>
+          <p>Scale bin deployment and collection frequency up or down for events, Christmas periods, or changes in community usage. On-demand model means no penalty costs for flexibility.</p>
+          <div class="op-card-tag">Flexible Capacity</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ HOW IT WORKS ═══════════ -->
+<section id="how">
+  <div class="container">
+    <div class="section-header">
+      <div class="label">Simple Process</div>
+      <h2>From Request to <span class="gradient-text">Collection Complete</span></h2>
+      <p>Getting started with on-demand collections takes minutes. Here's how the ThinkOS - On Demand works end-to-end.</p>
+    </div>
+
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">🏗️</div>
+        <h4>Setup Your Account</h4>
+        <p>Register as a commercial operator or council via the ThinkOS portal. Add your bin assets, sites, and preferences in under 10 minutes. RFID tags ship pre-programmed.</p>
+        <div class="how-step-tag">Day 1</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">📲</div>
+        <h4>Request a Collection</h4>
+        <p>Tap the app, click the portal, or let your smart bin sensor trigger automatically. Select 120 lt or 240 lt bins, waste stream, and preferred time window.</p>
+        <div class="how-step-tag">On Demand</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">🚛</div>
+        <h4>ThinkOS Dispatches Crew</h4>
+        <p>The platform routes the nearest available vehicle. Your driver receives the job on the ThinkOS app with full bin details, site access notes, and turn-by-turn navigation.</p>
+        <div class="how-step-tag">Automated</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">✅</div>
+        <h4>Collection Confirmed</h4>
+        <p>RFID scan confirms the lift. You receive an instant notification with time, bin ID, and weight. Invoice is generated automatically and available in your portal within minutes.</p>
+        <div class="how-step-tag">Instant</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FEATURES ═══════════ -->
+<section id="features">
+  <div class="container">
+    <div class="section-header">
+      <div class="label">Platform Features</div>
+      <h2>Everything You Need in <span class="gradient-text">One System</span></h2>
+      <p>ThinkOS - On Demand was designed from the ground up for the demands of Australian commercial waste operations.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon fi-blue">📡</div>
+        <h4>RFID Smart Bin Tracking</h4>
+        <p>Every bin carries a permanent RFID tag. Lifts are confirmed in real time — no manual dockets, no disputed service records. Full chain-of-custody from bin to tip.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-purple">🗺️</div>
+        <h4>AI Route Optimisation</h4>
+        <p>Dynamic on-demand jobs are automatically inserted into optimal routes. Reduces empty kilometres, fuel costs, and carbon emissions across the entire collection fleet.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-green">♻️</div>
+        <h4>Multi-Stream Waste Management</h4>
+        <p>Manage general waste, co-mingled recyclables, glass, organics, and cardboard streams separately — all through a single ThinkOS account and tracked by bin.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-warm">📊</div>
+        <h4>Real-Time Analytics Dashboard</h4>
+        <p>Live view of bin fill levels, collection history, waste volumes, and cost per lift. Export data in CSV or connect via API to your internal reporting tools.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-cyan">🔔</div>
+        <h4>Overflow Prevention Alerts</h4>
+        <p>Smart sensors detect fill levels and automatically trigger collections before bins overflow. Critical for council-managed public spaces and high-traffic commercial sites.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-red">⚡</div>
+        <h4>Same-Day Emergency Collections</h4>
+        <p>Unexpected volume spike? Submit an emergency collection request via the ThinkOS app. Available in all metropolitan Australian cities with a 4-hour response window.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-blue">🔗</div>
+        <h4>Open REST API</h4>
+        <p>Full API access for enterprise integrations. Connect ThinkOS to your property management system, ERP, building management platform, or IoT infrastructure.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-purple">📋</div>
+        <h4>Compliance & Audit Reporting</h4>
+        <p>Automated EPA and council compliance reporting. All collection data is immutably logged with GPS coordinates, timestamps, and operator credentials — audit-ready at all times.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-green">🌿</div>
+        <h4>Carbon & Sustainability Metrics</h4>
+        <p>Track your carbon footprint from waste operations. ThinkOS calculates collection route emissions and diverted-from-landfill volumes for your ESG and sustainability reporting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CTA ═══════════ -->
+<section id="cta">
+  <div class="container">
+    <div class="cta-box">
+      <div class="label text-center mb-0" style="-webkit-text-fill-color:var(--accent-primary);display:block;margin-bottom:12px;">Ready to Get Started?</div>
+      <h2>On-Demand Collections for <span class="gradient-text">Australian Business</span></h2>
+      <p>Join commercial operators and councils across Australia using ThinkOS - On Demand for smarter, more flexible 120 lt and 240 lt wheelie bin collections.</p>
+      <div class="cta-actions">
+        <a href="#" class="btn-primary">Request a Demo</a>
+        <a href="#" class="btn-secondary">View Pricing</a>
+        <a href="#" class="btn-secondary">Contact Our Team</a>
+      </div>
+      <div style="margin-top:32px;display:flex;justify-content:center;gap:32px;flex-wrap:wrap;">
+        <div style="text-align:center">
+          <div style="font-size:22px;margin-bottom:4px">🇦🇺</div>
+          <div style="font-size:12px;color:var(--text-muted)">Australia-Wide Service</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:22px;margin-bottom:4px">🏆</div>
+          <div style="font-size:12px;color:var(--text-muted)">Commercial & Council Ready</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:22px;margin-bottom:4px">⚡</div>
+          <div style="font-size:12px;color:var(--text-muted)">4-Hour Emergency Response</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:22px;margin-bottom:4px">🔒</div>
+          <div style="font-size:12px;color:var(--text-muted)">ISO 27001 Data Security</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" style="text-decoration:none;margin-bottom:14px;display:inline-flex;">
+          <div class="nav-logo-icon">♻</div>
+          Matter - On Demand
+        </a>
+        <p>On-demand 120 lt and 240 lt wheelie bin collections for commercial operators and councils across Australia. Powered by ThinkOS - On Demand.</p>
+        <div style="margin-top:16px;display:flex;gap:10px;">
+          <a href="#" style="color:var(--text-muted);font-size:18px;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--accent-primary)'" onmouseout="this.style.color='var(--text-muted)'">𝕏</a>
+          <a href="#" style="color:var(--text-muted);font-size:18px;text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--accent-primary)'" onmouseout="this.style.color='var(--text-muted)'">in</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <ul>
+          <li><a href="#stirling">ThinkOS - On Demand</a></li>
+          <li><a href="#bins">240 lt Bins</a></li>
+          <li><a href="#bins">120 lt Bins</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#">API Docs</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Solutions</h5>
+        <ul>
+          <li><a href="#">Commercial Operators</a></li>
+          <li><a href="#">Council Operators</a></li>
+          <li><a href="#">Strata & Body Corporate</a></li>
+          <li><a href="#">Events & Markets</a></li>
+          <li><a href="#">Enterprise</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About Matter</a></li>
+          <li><a href="#">Sustainability</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Matter - On Demand Pty Ltd. ABN registered in Australia. All rights reserved.</p>
+      <div class="footer-flags">🇦🇺</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════ JAVASCRIPT ═══════════ -->
+<script>
+  /* Bin tab switching */
+  function switchBinTab(size) {
+    document.querySelectorAll('.bin-tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.bin-tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + size).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  /* Operator tab switching */
+  function switchOpTab(type) {
+    document.querySelectorAll('.op-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.op-tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('op-' + type).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  /* ThinkOS node interaction */
+  function activateNode(el) {
+    document.querySelectorAll('.s-node').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    setTimeout(() => el.classList.remove('active'), 2000);
+  }
+
+  /* Core click */
+  function coreClick() {
+    const core = document.querySelector('.stirling-core');
+    core.style.transform = 'scale(1.06)';
+    core.style.boxShadow = '0 0 120px rgba(14,165,233,0.5), 0 0 240px rgba(124,58,237,0.3)';
+    // Ripple all nodes
+    document.querySelectorAll('.s-node').forEach((n, i) => {
+      setTimeout(() => {
+        n.classList.add('active');
+        setTimeout(() => n.classList.remove('active'), 800);
+      }, i * 80);
+    });
+    setTimeout(() => {
+      core.style.transform = '';
+      core.style.boxShadow = '';
+    }, 1200);
+  }
+
+  /* Smooth nav active highlight on scroll */
+  const sections = document.querySelectorAll('section[id], div[id="metrics"]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.style.color = '';
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.style.color = 'var(--text-primary)';
+          }
+        });
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => observer.observe(s));
+
+  /* Animate in on scroll */
+  const cards = document.querySelectorAll('.glass-card, .feature-card, .op-card, .how-step, .s-feature');
+  const cardObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+  cards.forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(18px)';
+    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease, background 0.2s, border-color 0.2s, box-shadow 0.2s';
+    cardObserver.observe(card);
+  });
+
+  /* Rotating orbit particles on stirling viz */
+  (function() {
+    const viz = document.querySelector('.stirling-viz');
+    if (!viz) return;
+    const colors = ['#0ea5e9','#7c3aed','#10b981'];
+    for (let i = 0; i < 3; i++) {
+      const dot = document.createElement('div');
+      dot.style.cssText = `
+        position:absolute;
+        width:5px;height:5px;
+        background:${colors[i]};
+        border-radius:50%;
+        box-shadow:0 0 8px ${colors[i]};
+        top:50%;left:50%;
+        transform-origin: 0 0;
+        animation: spin${i} ${14+i*4}s linear infinite;
+        z-index:5;
+      `;
+      const r = 42 + i * 8;
+      const style = document.createElement('style');
+      style.textContent = `@keyframes spin${i} {
+        0%   { transform: rotate(${i*120}deg) translateX(${r}%) translateY(-50%); }
+        100% { transform: rotate(${i*120+360}deg) translateX(${r}%) translateY(-50%); }
+      }`;
+      document.head.appendChild(style);
+      viz.appendChild(dot);
+    }
+  })();
+
+  /* ── Council Modal ── */
+  function openCouncilModal() {
+    document.getElementById('councilModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('councilSearch').focus(), 300);
+  }
+  function closeCouncilModal() {
+    document.getElementById('councilModal').classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('councilSearch').value = '';
+    filterCouncils();
+  }
+  function handleModalClick(e) {
+    if (e.target === document.getElementById('councilModal')) closeCouncilModal();
+  }
+
+  /* State tab filter */
+  let activeState = 'all';
+  function switchState(state, btn) {
+    activeState = state;
+    document.querySelectorAll('.mtab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterCouncils();
+  }
+
+  /* Search + state filter */
+  function filterCouncils() {
+    const query = document.getElementById('councilSearch').value.toLowerCase().trim();
+    const pills = document.querySelectorAll('#panel-state-all .council-pill');
+    let visible = 0;
+
+    pills.forEach(pill => {
+      const name = pill.textContent.toLowerCase();
+      const state = pill.dataset.state;
+      const matchesSearch = !query || name.includes(query);
+      const matchesState  = activeState === 'all' || state === activeState;
+      if (matchesSearch && matchesState) {
+        pill.classList.remove('hidden');
+        visible++;
+      } else {
+        pill.classList.add('hidden');
+      }
+    });
+
+    // Show/hide group labels based on visible pills
+    document.querySelectorAll('#panel-state-all .state-group-label').forEach(label => {
+      let next = label.nextElementSibling;
+      let hasVisible = false;
+      while (next && next.classList.contains('council-grid')) {
+        if (next.querySelector('.council-pill:not(.hidden)')) hasVisible = true;
+        next = next.nextElementSibling;
+      }
+      label.style.display = hasVisible ? '' : 'none';
+    });
+
+    document.getElementById('noResults').style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  /* Keyboard close */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeCouncilModal();
+  });
+
+</script>
+
+<!-- ═══════════ COUNCIL MODAL ═══════════ -->
+<div class="modal-overlay" id="councilModal" onclick="handleModalClick(event)">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-label="Australian Councils Offering On-Demand Collections">
+
+    <div class="modal-header">
+      <div class="label" style="margin-bottom:6px;">130+ Participating Councils</div>
+      <div class="modal-title">On-Demand Collections <span class="gradient-text">Across Australia</span></div>
+      <div class="modal-subtitle">Local government areas confirmed as offering on-demand or booked waste collection services.</div>
+      <button class="modal-close" onclick="closeCouncilModal()" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-search-wrap">
+      <input class="modal-search" type="text" placeholder="Search for your council…" id="councilSearch" oninput="filterCouncils()" />
+    </div>
+
+    <div class="modal-tabs" id="modalTabs">
+      <button class="mtab active" onclick="switchState('all',this)">All States <span class="mtab-count" id="cnt-all">130+</span></button>
+      <button class="mtab" onclick="switchState('vic',this)">VIC <span class="mtab-count">70+</span></button>
+      <button class="mtab" onclick="switchState('nsw',this)">NSW <span class="mtab-count">24</span></button>
+      <button class="mtab" onclick="switchState('qld',this)">QLD <span class="mtab-count">3</span></button>
+      <button class="mtab" onclick="switchState('wa',this)">WA <span class="mtab-count">19</span></button>
+      <button class="mtab" onclick="switchState('sa',this)">SA <span class="mtab-count">19</span></button>
+      <button class="mtab" onclick="switchState('act',this)">ACT <span class="mtab-count">1</span></button>
+    </div>
+
+    <div class="modal-body" id="modalBody">
+
+      <!-- ALL panel (default) -->
+      <div class="state-panel active" id="panel-state-all">
+
+        <div class="state-group-label">Victoria — Metropolitan (31 councils)</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="vic">City of Melbourne</div>
+          <div class="council-pill" data-state="vic">City of Yarra</div>
+          <div class="council-pill" data-state="vic">City of Boroondara</div>
+          <div class="council-pill" data-state="vic">City of Port Phillip</div>
+          <div class="council-pill" data-state="vic">City of Stonnington</div>
+          <div class="council-pill" data-state="vic">City of Glen Eira</div>
+          <div class="council-pill" data-state="vic">Whitehorse City Council</div>
+          <div class="council-pill" data-state="vic">Bayside City Council</div>
+          <div class="council-pill" data-state="vic">City of Kingston</div>
+          <div class="council-pill" data-state="vic">Knox City Council</div>
+          <div class="council-pill" data-state="vic">City of Monash</div>
+          <div class="council-pill" data-state="vic">City of Greater Dandenong</div>
+          <div class="council-pill" data-state="vic">Manningham City Council</div>
+          <div class="council-pill" data-state="vic">Maroondah City Council</div>
+          <div class="council-pill" data-state="vic">Brimbank City Council</div>
+          <div class="council-pill" data-state="vic">City of Casey</div>
+          <div class="council-pill" data-state="vic">Hume City Council</div>
+          <div class="council-pill" data-state="vic">Wyndham City</div>
+          <div class="council-pill" data-state="vic">City of Melton</div>
+          <div class="council-pill" data-state="vic">Frankston City Council</div>
+          <div class="council-pill" data-state="vic">Hobsons Bay City Council</div>
+          <div class="council-pill" data-state="vic">Moonee Valley City Council</div>
+          <div class="council-pill" data-state="vic">Maribyrnong City Council</div>
+          <div class="council-pill" data-state="vic">Merri-bek City Council</div>
+          <div class="council-pill" data-state="vic">City of Darebin</div>
+          <div class="council-pill" data-state="vic">Banyule City Council</div>
+          <div class="council-pill" data-state="vic">Nillumbik Shire Council</div>
+          <div class="council-pill" data-state="vic">Cardinia Shire Council</div>
+          <div class="council-pill" data-state="vic">Mornington Peninsula Shire</div>
+          <div class="council-pill" data-state="vic">City of Whittlesea</div>
+          <div class="council-pill" data-state="vic">City of Greater Geelong</div>
+        </div>
+
+        <div class="state-group-label">Victoria — Regional (40+ councils via WM Waste Management)</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="vic">Ballarat</div>
+          <div class="council-pill" data-state="vic">Baw Baw</div>
+          <div class="council-pill" data-state="vic">Bass Coast</div>
+          <div class="council-pill" data-state="vic">Benalla</div>
+          <div class="council-pill" data-state="vic">Campaspe</div>
+          <div class="council-pill" data-state="vic">Central Goldfields</div>
+          <div class="council-pill" data-state="vic">Colac Otway</div>
+          <div class="council-pill" data-state="vic">Corangamite</div>
+          <div class="council-pill" data-state="vic">East Gippsland</div>
+          <div class="council-pill" data-state="vic">Gannawarra</div>
+          <div class="council-pill" data-state="vic">Glenelg</div>
+          <div class="council-pill" data-state="vic">Golden Plains</div>
+          <div class="council-pill" data-state="vic">Greater Shepparton</div>
+          <div class="council-pill" data-state="vic">Hepburn</div>
+          <div class="council-pill" data-state="vic">Hindmarsh</div>
+          <div class="council-pill" data-state="vic">Horsham</div>
+          <div class="council-pill" data-state="vic">Indigo</div>
+          <div class="council-pill" data-state="vic">Latrobe</div>
+          <div class="council-pill" data-state="vic">Loddon</div>
+          <div class="council-pill" data-state="vic">Macedon Ranges</div>
+          <div class="council-pill" data-state="vic">Mansfield</div>
+          <div class="council-pill" data-state="vic">Mildura</div>
+          <div class="council-pill" data-state="vic">Mitchell</div>
+          <div class="council-pill" data-state="vic">Moira</div>
+          <div class="council-pill" data-state="vic">Moorabool</div>
+          <div class="council-pill" data-state="vic">Mount Alexander</div>
+          <div class="council-pill" data-state="vic">Moyne</div>
+          <div class="council-pill" data-state="vic">Murrindindi</div>
+          <div class="council-pill" data-state="vic">Northern Grampians</div>
+          <div class="council-pill" data-state="vic">Pyrenees</div>
+          <div class="council-pill" data-state="vic">South Gippsland</div>
+          <div class="council-pill" data-state="vic">Southern Grampians</div>
+          <div class="council-pill" data-state="vic">Strathbogie</div>
+          <div class="council-pill" data-state="vic">Surf Coast</div>
+          <div class="council-pill" data-state="vic">Swan Hill</div>
+          <div class="council-pill" data-state="vic">Towong</div>
+          <div class="council-pill" data-state="vic">Wangaratta</div>
+          <div class="council-pill" data-state="vic">Warrnambool</div>
+          <div class="council-pill" data-state="vic">Wellington</div>
+          <div class="council-pill" data-state="vic">West Wimmera</div>
+          <div class="council-pill" data-state="vic">Wodonga</div>
+          <div class="council-pill" data-state="vic">Yarriambiack</div>
+        </div>
+
+        <div class="state-group-label">New South Wales (24 councils)</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="nsw">City of Sydney</div>
+          <div class="council-pill" data-state="nsw">Inner West Council</div>
+          <div class="council-pill" data-state="nsw">Canterbury-Bankstown</div>
+          <div class="council-pill" data-state="nsw">Randwick City Council</div>
+          <div class="council-pill" data-state="nsw">Waverley Council</div>
+          <div class="council-pill" data-state="nsw">North Sydney Council</div>
+          <div class="council-pill" data-state="nsw">Cumberland City Council</div>
+          <div class="council-pill" data-state="nsw">City of Parramatta</div>
+          <div class="council-pill" data-state="nsw">Blacktown City Council</div>
+          <div class="council-pill" data-state="nsw">Penrith City Council</div>
+          <div class="council-pill" data-state="nsw">Liverpool City Council</div>
+          <div class="council-pill" data-state="nsw">Sutherland Shire Council</div>
+          <div class="council-pill" data-state="nsw">Northern Beaches Council</div>
+          <div class="council-pill" data-state="nsw">Ku-ring-gai Council</div>
+          <div class="council-pill" data-state="nsw">City of Ryde</div>
+          <div class="council-pill" data-state="nsw">Georges River Council</div>
+          <div class="council-pill" data-state="nsw">Fairfield City Council</div>
+          <div class="council-pill" data-state="nsw">Hornsby Shire Council</div>
+          <div class="council-pill" data-state="nsw">Mosman Council</div>
+          <div class="council-pill" data-state="nsw">Willoughby City Council</div>
+          <div class="council-pill" data-state="nsw">The Hills Shire Council</div>
+          <div class="council-pill" data-state="nsw">City of Newcastle</div>
+          <div class="council-pill" data-state="nsw">Lake Macquarie City Council</div>
+          <div class="council-pill" data-state="nsw">Campbelltown City Council</div>
+        </div>
+
+        <div class="state-group-label">Queensland (3 councils)</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="qld">Gold Coast City Council</div>
+          <div class="council-pill" data-state="qld">Ipswich City Council</div>
+          <div class="council-pill" data-state="qld">Townsville City Council</div>
+        </div>
+
+        <div class="state-group-label">Western Australia — Verge Valet (9 councils)</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="wa">Town of Cambridge</div>
+          <div class="council-pill" data-state="wa">Town of Cottesloe</div>
+          <div class="council-pill" data-state="wa">City of Fremantle</div>
+          <div class="council-pill" data-state="wa">Town of Mosman Park</div>
+          <div class="council-pill" data-state="wa">Shire of Peppermint Grove</div>
+          <div class="council-pill" data-state="wa">City of South Perth</div>
+          <div class="council-pill" data-state="wa">City of Subiaco</div>
+          <div class="council-pill" data-state="wa">Town of Victoria Park</div>
+          <div class="council-pill" data-state="wa">City of Vincent</div>
+        </div>
+
+        <div class="state-group-label">Western Australia — Independent (10 councils)</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="wa">City of Stirling</div>
+          <div class="council-pill" data-state="wa">City of Canning</div>
+          <div class="council-pill" data-state="wa">City of Wanneroo</div>
+          <div class="council-pill" data-state="wa">City of Swan</div>
+          <div class="council-pill" data-state="wa">City of Joondalup</div>
+          <div class="council-pill" data-state="wa">City of Melville</div>
+          <div class="council-pill" data-state="wa">City of Bayswater</div>
+          <div class="council-pill" data-state="wa">City of Belmont</div>
+          <div class="council-pill" data-state="wa">Town of Bassendean</div>
+          <div class="council-pill" data-state="wa">City of Kwinana</div>
+        </div>
+
+        <div class="state-group-label">South Australia — Cleanaway / Solo (8 councils)</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="sa">City of Adelaide</div>
+          <div class="council-pill" data-state="sa">City of Charles Sturt</div>
+          <div class="council-pill" data-state="sa">City of Port Adelaide Enfield</div>
+          <div class="council-pill" data-state="sa">City of Marion</div>
+          <div class="council-pill" data-state="sa">City of Holdfast Bay</div>
+          <div class="council-pill" data-state="sa">City of Onkaparinga</div>
+          <div class="council-pill" data-state="sa">City of Tea Tree Gully</div>
+          <div class="council-pill" data-state="sa">City of West Torrens</div>
+        </div>
+
+        <div class="state-group-label">South Australia — East Waste (8 councils)</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="sa">Adelaide Hills Council</div>
+          <div class="council-pill" data-state="sa">City of Burnside</div>
+          <div class="council-pill" data-state="sa">Campbelltown City (SA)</div>
+          <div class="council-pill" data-state="sa">City of Mitcham</div>
+          <div class="council-pill" data-state="sa">City of Norwood Payneham &amp; St Peters</div>
+          <div class="council-pill" data-state="sa">City of Prospect</div>
+          <div class="council-pill" data-state="sa">City of Unley</div>
+          <div class="council-pill" data-state="sa">Town of Walkerville</div>
+        </div>
+
+        <div class="state-group-label">South Australia — NAWMA (3 councils)</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="sa">City of Salisbury</div>
+          <div class="council-pill" data-state="sa">City of Playford</div>
+          <div class="council-pill" data-state="sa">Town of Gawler</div>
+        </div>
+
+        <div class="state-group-label">Australian Capital Territory</div>
+        <div class="council-grid">
+          <div class="council-pill" data-state="act">ACT Government (Transport Canberra &amp; City Services)</div>
+        </div>
+
+        <div class="no-results" id="noResults">No councils found matching your search.</div>
+      </div><!-- /panel-state-all -->
+
+    </div><!-- /modal-body -->
+
+    <!-- CTA Banner -->
+    <div class="modal-cta">
+      <div class="modal-cta-text">
+        <div class="modal-cta-icon">📍</div>
+        <div class="modal-cta-copy">
+          <strong>Let Us Know if Your Council Area is Not on this List — We're Here to Help</strong>
+          <span>We're expanding coverage constantly. Get in touch and we'll work to bring ThinkOS - On Demand to your area.</span>
+        </div>
+      </div>
+      <a href="#cta" class="modal-cta-btn" onclick="closeCouncilModal()">
+        Contact Us ↗
+      </a>
+    </div>
+
+  </div><!-- /modal-box -->
+</div><!-- /modal-overlay -->
+
+</body>
+</html>
