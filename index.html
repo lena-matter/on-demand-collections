@@ -6,77 +6,85 @@
   <title>On Demand Commercial Collections | Matter</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     /* ─────────────────────────────────────────────
        CSS DESIGN TOKENS  (ThinkOS-inspired palette)
     ───────────────────────────────────────────── */
     :root {
-      --bg-base:        #07080d;
-      --bg-surface:     #0d1117;
-      --bg-elevated:    #111827;
-      --bg-card:        rgba(255,255,255,0.04);
-      --bg-card-hover:  rgba(255,255,255,0.07);
+  /* Brand Colors */
+  --accent-primary: #43B02A;
+  --accent-secondary: #2d8a1e;
+  --accent-tertiary: #43B02A;
+  --accent-warm: #f59e0b;
 
-      --accent-primary:   #0ea5e9;
-      --accent-secondary: #7c3aed;
-      --accent-tertiary:  #10b981;
-      --accent-warm:      #f59e0b;
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, #43B02A 0%, #2d8a1e 100%);
+  --gradient-green: linear-gradient(135deg, #43B02A 0%, #68c94a 100%);
 
-      --gradient-brand:   linear-gradient(135deg, #0ea5e9 0%, #7c3aed 100%);
-      --gradient-green:   linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
-      --gradient-warm:    linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-      --gradient-hero:    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(14,165,233,0.18) 0%, transparent 70%),
-                          radial-gradient(ellipse 50% 40% at 80% 80%, rgba(124,58,237,0.12) 0%, transparent 60%);
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9f9f9;
+  --bg-tertiary: #f3f3f3;
+  --bg-accent: #43B02A;
 
-      --text-primary:   #f0f6fc;
-      --text-secondary: #8b949e;
-      --text-muted:     #484f58;
+  /* Text Colors */
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --text-light: #ffffff;
+  --text-brand: #43B02A;
 
-      --border-subtle:  rgba(255,255,255,0.07);
-      --border-default: rgba(255,255,255,0.12);
-      --border-strong:  rgba(14,165,233,0.35);
+  /* Borders & Shadows */
+  --border-color: #e5e5e5;
+  --border-color-light: #f0f0f0;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
 
-      --glass-bg:       rgba(255,255,255,0.04);
-      --glass-border:   rgba(255,255,255,0.10);
-      --glass-blur:     blur(18px);
+  /* Fonts */
+  --font-body: 'Manrope', system-ui, sans-serif;
+  --font-display: 'Poppins', 'Manrope', system-ui, sans-serif;
 
-      --shadow-card:    0 4px 24px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
-      --shadow-glow:    0 0 40px rgba(14,165,233,0.18);
-      --shadow-glow-lg: 0 0 80px rgba(14,165,233,0.22), 0 0 160px rgba(124,58,237,0.12);
+  /* Other */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --nav-h: 72px;
 
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
-      --radius-xl: 28px;
-
-      --font-body:    'Inter', system-ui, sans-serif;
-      --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-
-      --nav-h: 72px;
-    }
+  /* Legacy aliases (mapped to new light theme) */
+  --bg-base: #ffffff;
+  --bg-surface: #f9f9f9;
+  --bg-elevated: #ffffff;
+  --bg-card: rgba(0,0,0,0.03);
+  --bg-card-hover: rgba(0,0,0,0.06);
+  --glass-bg: rgba(255,255,255,0.9);
+  --glass-border: #e5e5e5;
+  --glass-blur: blur(18px);
+  --border-subtle: #f0f0f0;
+  --border-default: #e5e5e5;
+  --border-strong: rgba(67,176,42,0.35);
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-glow: 0 0 20px rgba(67,176,42,0.1);
+  --shadow-glow-lg: 0 0 40px rgba(67,176,42,0.12), 0 0 80px rgba(67,176,42,0.06);
+  --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  --gradient-hero: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(67,176,42,0.08) 0%, transparent 70%);
+}
 
     /* ─── RESET ─── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       font-family: var(--font-body);
-      background: var(--bg-base);
+      background: #ffffff;
       color: var(--text-primary);
       line-height: 1.6;
       overflow-x: hidden;
     }
 
     /* ─── NOISE TEXTURE OVERLAY ─── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.4;
-    }
+    
 
     /* ─── TYPOGRAPHY ─── */
     h1,h2,h3,h4,h5 { font-family: var(--font-display); line-height: 1.15; }
@@ -89,7 +97,7 @@
       color: var(--accent-primary);
     }
     .label-green { color: var(--accent-tertiary); }
-    .label-purple { color: #a78bfa; }
+    .label-purple { color: #2d8a1e; }
 
     /* ─── NAV ─── */
     nav {
@@ -100,27 +108,20 @@
       display: flex;
       align-items: center;
       padding: 0 48px;
-      background: rgba(7,8,13,0.72);
+      background: rgba(255,255,255,0.95);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       border-bottom: 1px solid var(--border-subtle);
     }
     .nav-logo {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 18px;
-      color: var(--text-primary);
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 10px;
+      line-height: 1;
     }
-    .nav-logo-icon {
-      width: 32px; height: 32px;
-      background: var(--gradient-brand);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
+    .nav-logo svg {
+      height: 28px;
+      width: auto;
     }
     .nav-links {
       display: flex;
@@ -175,7 +176,7 @@
     }
     .glass-card:hover {
       background: var(--bg-card-hover);
-      border-color: rgba(14,165,233,0.2);
+      border-color: rgba(67,176,42,0.2);
       transform: translateY(-2px);
     }
 
@@ -221,8 +222,8 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: rgba(14,165,233,0.1);
-      border: 1px solid rgba(14,165,233,0.25);
+      background: rgba(67,176,42,0.1);
+      border: 1px solid rgba(67,176,42,0.25);
       border-radius: 100px;
       padding: 6px 16px;
       margin-bottom: 24px;
@@ -269,7 +270,7 @@
       cursor: pointer;
       text-decoration: none;
       transition: opacity 0.2s, transform 0.2s;
-      box-shadow: 0 4px 20px rgba(14,165,233,0.3);
+      box-shadow: 0 4px 20px rgba(67,176,42,0.3);
     }
     .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
     .btn-secondary {
@@ -319,7 +320,7 @@
     .stirling-glow {
       position: absolute;
       inset: -60px;
-      background: radial-gradient(ellipse at center, rgba(14,165,233,0.14) 0%, rgba(124,58,237,0.08) 50%, transparent 75%);
+      background: radial-gradient(ellipse at center, rgba(67,176,42,0.14) 0%, rgba(45,138,30,0.08) 50%, transparent 75%);
       pointer-events: none;
       animation: glow-pulse 4s ease-in-out infinite;
     }
@@ -336,12 +337,12 @@
     }
     .stirling-ring-1 {
       inset: 12%;
-      border-color: rgba(14,165,233,0.18);
+      border-color: rgba(67,176,42,0.18);
       animation-duration: 40s;
     }
     .stirling-ring-2 {
       inset: 22%;
-      border-color: rgba(124,58,237,0.15);
+      border-color: rgba(45,138,30,0.15);
       animation-duration: 28s;
       animation-direction: reverse;
     }
@@ -356,14 +357,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: var(--shadow-glow-lg), inset 0 0 40px rgba(14,165,233,0.06);
+      box-shadow: var(--shadow-glow-lg), inset 0 0 40px rgba(67,176,42,0.06);
       overflow: hidden;
       cursor: pointer;
       transition: transform 0.3s, box-shadow 0.3s;
     }
     .stirling-core:hover {
       transform: scale(1.03);
-      box-shadow: 0 0 100px rgba(14,165,233,0.3), 0 0 200px rgba(124,58,237,0.18);
+      box-shadow: 0 0 100px rgba(67,176,42,0.3), 0 0 200px rgba(45,138,30,0.18);
     }
     .stirling-core-inner {
       text-align: center;
@@ -374,7 +375,7 @@
     .stirling-core-icon {
       font-size: 52px;
       margin-bottom: 10px;
-      filter: drop-shadow(0 0 16px rgba(14,165,233,0.5));
+      filter: drop-shadow(0 0 16px rgba(67,176,42,0.5));
     }
     .stirling-core-title {
       font-family: var(--font-display);
@@ -423,15 +424,15 @@
     }
     .s-node:hover {
       border-color: var(--accent-primary);
-      box-shadow: 0 0 20px rgba(14,165,233,0.25);
+      box-shadow: 0 0 20px rgba(67,176,42,0.25);
       transform: scale(1.12);
       background: var(--bg-card-hover);
       z-index: 20;
     }
     .s-node.active {
       border-color: var(--accent-primary);
-      background: rgba(14,165,233,0.12);
-      box-shadow: 0 0 24px rgba(14,165,233,0.3);
+      background: rgba(67,176,42,0.12);
+      box-shadow: 0 0 24px rgba(67,176,42,0.3);
     }
     .s-node-icon { font-size: 22px; }
     .s-node-label { font-size: 8px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-secondary); text-align: center; line-height: 1.2; }
@@ -606,8 +607,8 @@
       justify-content: center;
       font-size: 20px;
     }
-    .s-feature-icon.blue  { background: rgba(14,165,233,0.12); border: 1px solid rgba(14,165,233,0.2); }
-    .s-feature-icon.purple { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.2); }
+    .s-feature-icon.blue { background: rgba(67,176,42,0.12); border: 1px solid rgba(67,176,42,0.2); }
+    .s-feature-icon.purple { background: rgba(45,138,30,0.12); border: 1px solid rgba(45,138,30,0.2); }
     .s-feature-icon.green  { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.2); }
     .s-feature-icon.warm   { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.2); }
     .s-feature h4 { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
@@ -628,7 +629,7 @@
     }
     .bins-tab-nav {
       display: flex;
-      background: rgba(0,0,0,0.3);
+      background: rgba(0,0,0,0.04);
       border-bottom: 1px solid var(--border-subtle);
       padding: 6px;
       gap: 4px;
@@ -682,10 +683,10 @@
     }
     .bin-svg {
       width: 100%;
-      filter: drop-shadow(0 12px 40px rgba(14,165,233,0.25));
+      filter: drop-shadow(0 12px 40px rgba(67,176,42,0.25));
       transition: filter 0.3s;
     }
-    .bin-svg:hover { filter: drop-shadow(0 20px 60px rgba(14,165,233,0.4)); }
+    .bin-svg:hover { filter: drop-shadow(0 20px 60px rgba(67,176,42,0.4)); }
 
     .bin-badge {
       position: absolute;
@@ -740,7 +741,7 @@
       border-radius: var(--radius-md);
       transition: border-color 0.2s;
     }
-    .use-case:hover { border-color: rgba(14,165,233,0.25); }
+    .use-case:hover { border-color: rgba(67,176,42,0.25); }
     .use-case-icon { font-size: 20px; margin-top: 1px; }
     .use-case h5 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
     .use-case p  { font-size: 13px; color: var(--text-secondary); }
@@ -791,7 +792,7 @@
     .op-tab-btn.active {
       background: var(--gradient-brand);
       color: #fff;
-      box-shadow: 0 4px 16px rgba(14,165,233,0.25);
+      box-shadow: 0 4px 16px rgba(67,176,42,0.25);
     }
     .op-tab-btn:not(.active):hover { color: var(--text-primary); background: var(--bg-card); }
     .op-panel { display: none; }
@@ -810,7 +811,7 @@
     }
     .op-card:hover {
       background: var(--bg-card-hover);
-      border-color: rgba(14,165,233,0.25);
+      border-color: rgba(67,176,42,0.25);
       transform: translateY(-3px);
       box-shadow: var(--shadow-glow);
     }
@@ -828,8 +829,8 @@
       font-weight: 600;
       letter-spacing: 0.06em;
       color: var(--accent-primary);
-      background: rgba(14,165,233,0.1);
-      border: 1px solid rgba(14,165,233,0.2);
+      background: rgba(67,176,42,0.1);
+      border: 1px solid rgba(67,176,42,0.2);
       border-radius: 100px;
       padding: 3px 10px;
     }
@@ -876,7 +877,7 @@
     }
     .how-step:hover .how-step-num {
       border-color: var(--accent-primary);
-      box-shadow: 0 0 20px rgba(14,165,233,0.25);
+      box-shadow: 0 0 20px rgba(67,176,42,0.25);
     }
     .how-step h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
     .how-step p  { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
@@ -923,7 +924,7 @@
     .feature-card:hover::after { transform: scaleX(1); }
     .feature-card:hover {
       background: var(--bg-card-hover);
-      border-color: rgba(14,165,233,0.2);
+      border-color: rgba(67,176,42,0.2);
       transform: translateY(-2px);
     }
     .feature-icon {
@@ -935,8 +936,8 @@
       font-size: 22px;
       margin-bottom: 18px;
     }
-    .fi-blue   { background: rgba(14,165,233,0.1);  border: 1px solid rgba(14,165,233,0.2);  }
-    .fi-purple { background: rgba(124,58,237,0.1);  border: 1px solid rgba(124,58,237,0.2);  }
+    .fi-blue { background: rgba(67,176,42,0.1);  border: 1px solid rgba(67,176,42,0.2);  }
+    .fi-purple { background: rgba(45,138,30,0.1);  border: 1px solid rgba(45,138,30,0.2);  }
     .fi-green  { background: rgba(16,185,129,0.1);  border: 1px solid rgba(16,185,129,0.2);  }
     .fi-warm   { background: rgba(245,158,11,0.1);  border: 1px solid rgba(245,158,11,0.2);  }
     .fi-red    { background: rgba(239,68,68,0.1);   border: 1px solid rgba(239,68,68,0.2);   }
@@ -949,7 +950,7 @@
     ═══════════════════════════════════════════ */
     #metrics {
       padding: 60px 0;
-      background: linear-gradient(135deg, rgba(14,165,233,0.07) 0%, rgba(124,58,237,0.07) 100%);
+      background: linear-gradient(135deg, rgba(67,176,42,0.07) 0%, rgba(45,138,30,0.07) 100%);
       border-top: 1px solid var(--border-subtle);
       border-bottom: 1px solid var(--border-subtle);
     }
@@ -994,7 +995,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(14,165,233,0.1) 0%, transparent 70%);
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(67,176,42,0.1) 0%, transparent 70%);
       pointer-events: none;
     }
     .cta-box h2 { font-size: clamp(28px,4vw,42px); margin-bottom: 18px; position: relative; z-index: 1; }
@@ -1080,8 +1081,8 @@
 
     /* ─── SCROLLBAR ─── */
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg-base); }
-    ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: #f0f0f0; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 
     /* ─── UTILITY ─── */
     .mb-0 { margin-bottom: 0 !important; }
@@ -1095,11 +1096,11 @@
       cursor: pointer;
       border: none;
       font-family: var(--font-body);
-      background: rgba(14,165,233,0.1);
+      background: rgba(67,176,42,0.1);
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      border: 1px solid rgba(14,165,233,0.25);
+      border: 1px solid rgba(67,176,42,0.25);
       border-radius: 100px;
       padding: 6px 16px;
       margin-bottom: 24px;
@@ -1110,8 +1111,8 @@
       transition: background 0.2s, border-color 0.2s;
     }
     .hero-badge:hover {
-      background: rgba(14,165,233,0.18);
-      border-color: rgba(14,165,233,0.45);
+      background: rgba(67,176,42,0.18);
+      border-color: rgba(67,176,42,0.45);
     }
 
     .modal-overlay {
@@ -1262,7 +1263,7 @@
       flex: 1;
     }
     .modal-body::-webkit-scrollbar { width: 4px; }
-    .modal-body::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 2px; }
+    .modal-body::-webkit-scrollbar-thumb { background: #43B02A; }
 
     .state-panel { display: none; }
     .state-panel.active { display: block; }
@@ -1302,7 +1303,7 @@
     }
     .council-pill:hover {
       background: var(--bg-card-hover);
-      border-color: rgba(14,165,233,0.2);
+      border-color: rgba(67,176,42,0.2);
       color: var(--text-primary);
     }
     .council-pill::before {
@@ -1328,8 +1329,8 @@
     .modal-cta {
       flex-shrink: 0;
       margin: 0 32px 24px;
-      background: linear-gradient(135deg, rgba(14,165,233,0.08) 0%, rgba(124,58,237,0.08) 100%);
-      border: 1px solid rgba(14,165,233,0.2);
+      background: linear-gradient(135deg, rgba(67,176,42,0.08) 0%, rgba(45,138,30,0.08) 100%);
+      border: 1px solid rgba(67,176,42,0.2);
       border-radius: var(--radius-lg);
       padding: 18px 24px;
       display: flex;
@@ -1385,8 +1386,7 @@
 <!-- ═══════════ NAV ═══════════ -->
 <nav>
   <a href="#" class="nav-logo">
-    <div class="nav-logo-icon">♻</div>
-    Matter - On Demand
+    <svg viewBox="40 48 680 148" xmlns="http://www.w3.org/2000/svg"><path fill="#205c40" d="M43.51,82.54h36.2v12.6c9.87-9.47,20.93-14.2,33.2-14.2,15.2,0,26.8,6.4,34.8,19.2,8.13-12.93,19.73-19.4,34.8-19.4,4.8,0,9.33.7,13.6,2.1,4.27,1.4,7.93,3.6,11,6.6,3.07,3,5.5,6.9,7.3,11.7s2.7,10.6,2.7,17.4v66.6h-36.2v-50.6c0-5.2-.37-9.47-1.1-12.8-.73-3.33-1.8-5.93-3.2-7.8-1.4-1.87-3.03-3.13-4.9-3.8-1.87-.67-3.87-1-6-1-11.6,0-17.4,8.47-17.4,25.4v50.6h-36.2v-50.6c0-5.2-.33-9.5-1-12.9-.67-3.4-1.63-6.1-2.9-8.1-1.27-2-2.9-3.37-4.9-4.1-2-.73-4.33-1.1-7-1.1-2.27,0-4.4.33-6.4,1-2,.67-3.77,1.97-5.3,3.9-1.53,1.93-2.73,4.6-3.6,8-.87,3.4-1.3,7.83-1.3,13.3v50.6h-36.2v-102.6Z"/><path fill="#205c40" d="M310.15,82.54h36.4v102.6h-36.4v-11.4c-7.73,9.73-18.2,14.6-31.4,14.6-7.47,0-14.34-1.37-20.6-4.1-6.27-2.73-11.73-6.57-16.4-11.5-4.67-4.93-8.3-10.73-10.9-17.4-2.6-6.67-3.9-13.93-3.9-21.8,0-7.33,1.27-14.3,3.8-20.9,2.53-6.6,6.06-12.37,10.6-17.3,4.53-4.93,9.93-8.83,16.2-11.7,6.27-2.87,13.2-4.3,20.8-4.3,12.8,0,23.4,4.47,31.8,13.4v-10.2ZM264.55,133.54c0,3.33.6,6.43,1.8,9.3,1.2,2.87,2.83,5.37,4.9,7.5,2.06,2.13,4.53,3.8,7.4,5,2.87,1.2,5.97,1.8,9.3,1.8s6.23-.6,9.1-1.8c2.87-1.2,5.33-2.87,7.4-5,2.07-2.13,3.73-4.6,5-7.4,1.27-2.8,1.9-5.8,1.9-9s-.63-6.23-1.9-9.1c-1.27-2.87-2.93-5.37-5-7.5-2.07-2.13-4.54-3.8-7.4-5-2.87-1.2-5.9-1.8-9.1-1.8s-6.43.6-9.3,1.8c-2.87,1.2-5.33,2.87-7.4,5-2.07,2.13-3.7,4.57-4.9,7.3-1.2,2.73-1.8,5.7-1.8,8.9Z"/><path fill="#205c40" d="M403.53,112.74v72.4h-36.2v-72.4h-12v-30.2h12v-30.8h36.2v30.8h20.6v30.2h-20.6Z"/><path fill="#205c40" d="M470.39,112.74v72.4h-36.2v-72.4h-12v-30.2h12v-30.8h36.2v30.8h20.6v30.2h-20.6Z"/><path fill="#205c40" d="M527.92,139.94c0,15.6,7.33,23.4,22,23.4,7.87,0,13.8-3.2,17.8-9.6h35c-7.07,23.47-24.73,35.2-53,35.2-8.67,0-16.6-1.3-23.8-3.9-7.2-2.6-13.37-6.3-18.5-11.1-5.13-4.8-9.1-10.53-11.9-17.2-2.8-6.67-4.2-14.13-4.2-22.4s1.33-16.23,4-23.1c2.66-6.87,6.46-12.7,11.4-17.5,4.93-4.8,10.9-8.5,17.9-11.1s14.9-3.9,23.7-3.9,16.46,1.3,23.4,3.9c6.93,2.6,12.8,6.37,17.6,11.3,4.8,4.93,8.46,10.97,11,18.1,2.53,7.13,3.8,15.17,3.8,24.1v3.8h-76.2ZM570.32,118.94c-1.2-5.07-3.67-9.13-7.4-12.2-3.73-3.07-8.27-4.6-13.6-4.6-5.6,0-10.17,1.47-13.7,4.4-3.53,2.93-5.77,7.07-6.7,12.4h41.4Z"/><path fill="#205c40" d="M614.9,82.54h36.2v16.8c3.87-6.13,8.6-10.83,14.2-14.1,5.6-3.27,12.13-4.9,19.6-4.9h3.1c1.13,0,2.43.13,3.9.4v34.6c-4.8-2.4-10-3.6-15.6-3.6-8.4,0-14.7,2.5-18.9,7.5-4.2,5-6.3,12.3-6.3,21.9v44h-36.2v-102.6Z"/><circle fill="#43b02a" cx="697.01" cy="170.74" r="17.55"/></svg>
   </a>
   <ul class="nav-links">
     <li><a href="#stirling">ThinkOS - On Demand</a></li>
@@ -1453,7 +1453,7 @@
 
       <!-- Demo CTA -->
       <div style="text-align:center; margin-top:32px;">
-        <a href="file:///Users/graphics2/Library/Application%20Support/Claude/local-agent-mode-sessions/184af126-81b8-4bf8-a4d8-d56bc324e462/1bcc10b3-e375-4545-8bdb-ae8badac7c0f/local_f794881b-fcdb-43dd-8d01-e20fa90d389e/outputs/stirling-collection-system.html" target="_blank" rel="noopener" style="
+        <a href="stirling-collection-system.html" target="_blank" rel="noopener" style="
           display: inline-flex;
           align-items: center;
           gap: 10px;
@@ -1467,9 +1467,9 @@
           text-transform: uppercase;
           text-decoration: none;
           border-radius: var(--radius-md);
-          box-shadow: 0 4px 24px rgba(14,165,233,0.35), 0 0 60px rgba(124,58,237,0.15);
+          box-shadow: 0 4px 24px rgba(67,176,42,0.35), 0 0 60px rgba(45,138,30,0.15);
           transition: all 0.3s ease;
-        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 32px rgba(14,165,233,0.45), 0 0 80px rgba(124,58,237,0.2)';" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 24px rgba(14,165,233,0.35), 0 0 60px rgba(124,58,237,0.15)';">
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 32px rgba(67,176,42,0.45), 0 0 80px rgba(45,138,30,0.2)';" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 24px rgba(67,176,42,0.35), 0 0 60px rgba(45,138,30,0.15)';">
           DEMO — GO DEEPER
           <span style="font-size:20px;">↗</span>
         </a>
@@ -1516,7 +1516,7 @@
 
       <!-- 120lt Card -->
       <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:40px 32px; text-align:center; position:relative; transition:all 0.3s;" onmouseover="this.style.borderColor='var(--border-strong)'; this.style.boxShadow='var(--shadow-glow)'" onmouseout="this.style.borderColor='var(--glass-border)'; this.style.boxShadow='none'">
-        <div style="font-size:48px; margin-bottom:12px;">🪣</div>
+        <div style="font-size:48px; margin-bottom:12px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 4h6v4H9z"></path><path d="M8 12h8"></path></svg></div>
         <h3 style="font-family:var(--font-display); font-size:22px; margin-bottom:4px;">120 Litre</h3>
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:24px;">Compact Commercial Bin</div>
         <div style="margin-bottom:8px;">
@@ -1535,7 +1535,7 @@
         <!-- ThinkNOW -->
         <div style="border-top:1px solid var(--border-subtle); padding-top:16px; margin-top:8px;">
           <div style="display:inline-flex; align-items:center; gap:6px; padding:10px 20px; background:var(--gradient-warm); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform=''">
-            <span style="font-size:14px;">⚡</span>
+            <span style="font-size:14px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline></svg></span>
             <span style="color:#fff; font-weight:700; font-size:13px; letter-spacing:0.04em;">ThinkNOW</span>
             <span style="color:rgba(255,255,255,0.75); font-size:12px; margin-left:4px;">+$10.00</span>
           </div>
@@ -1546,7 +1546,7 @@
       <!-- 240lt Card -->
       <div style="background:var(--glass-bg); border:2px solid var(--border-strong); border-radius:var(--radius-lg); padding:40px 32px; text-align:center; position:relative; box-shadow:var(--shadow-glow); transition:all 0.3s;">
         <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--gradient-brand); color:#fff; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:5px 18px; border-radius:20px;">Most Popular</div>
-        <div style="font-size:48px; margin-bottom:12px;">🗑️</div>
+        <div style="font-size:48px; margin-bottom:12px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div>
         <h3 style="font-family:var(--font-display); font-size:22px; margin-bottom:4px;">240 Litre</h3>
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:24px;">High-Volume Commercial Bin</div>
         <div style="margin-bottom:8px;">
@@ -1565,7 +1565,7 @@
         <!-- ThinkNOW -->
         <div style="border-top:1px solid var(--border-subtle); padding-top:16px; margin-top:8px;">
           <div style="display:inline-flex; align-items:center; gap:6px; padding:10px 20px; background:var(--gradient-warm); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform=''">
-            <span style="font-size:14px;">⚡</span>
+            <span style="font-size:14px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline></svg></span>
             <span style="color:#fff; font-weight:700; font-size:13px; letter-spacing:0.04em;">ThinkNOW</span>
             <span style="color:rgba(255,255,255,0.75); font-size:12px; margin-left:4px;">+$10.00</span>
           </div>
@@ -1585,7 +1585,7 @@
 
         <!-- Monthly Reporting -->
         <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
-          <div style="font-size:28px; margin-bottom:12px;">📊</div>
+          <div style="font-size:28px; margin-bottom:12px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
           <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">Monthly Reporting</h4>
           <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-primary); margin-bottom:8px;">$49<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /mo</span></div>
           <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">Full monthly waste volume report by site, stream, and bin size. Includes lift counts, weight trends, cost breakdown, and exportable PDF/CSV data.</p>
@@ -1593,7 +1593,7 @@
 
         <!-- Sustainability Reporting -->
         <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
-          <div style="font-size:28px; margin-bottom:12px;">🌿</div>
+          <div style="font-size:28px; margin-bottom:12px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7"></path><path d="M12 10l3 5-3-2-3 2 3-5"></path></svg></div>
           <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">Sustainability Reporting</h4>
           <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-tertiary); margin-bottom:8px;">$79<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /mo</span></div>
           <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">ESG-ready reports: landfill diversion rates, CO₂ offsets, recycling contamination analysis, and circular economy metrics aligned to NGER and council KPIs.</p>
@@ -1601,7 +1601,7 @@
 
         <!-- Smart Sensor -->
         <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
-          <div style="font-size:28px; margin-bottom:12px;">📡</div>
+          <div style="font-size:28px; margin-bottom:12px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17l5.15-5.15a3 3 0 1 1 4.24 0L22 3"></path><path d="M7 7l3.14-3.14a3 3 0 1 1 4.24 0"></path></svg></div>
           <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">Smart Sensor</h4>
           <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-primary); margin-bottom:8px;">$12<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /bin/mo</span></div>
           <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">IoT fill-level sensor fitted to each bin. Auto-triggers collection when 80% full — eliminates overflows and empty pickups entirely.</p>
@@ -1609,7 +1609,7 @@
 
         <!-- Facilities Management Integration -->
         <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
-          <div style="font-size:28px; margin-bottom:12px;">🏗️</div>
+          <div style="font-size:28px; margin-bottom:12px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="8" height="8"></rect><path d="M12 3v8"></path><path d="M14 3h4v8"></path><path d="M2 13h18"></path><rect x="2" y="15" width="8" height="8"></rect><rect x="12" y="15" width="8" height="8"></rect></svg></div>
           <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">FM Integration</h4>
           <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-secondary); margin-bottom:8px;">$99<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /mo</span></div>
           <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">Connect ThinkOS to your FM platform (MEX, FMW, Archibus). Sync work orders, asset registers, and service logs for closed-loop facilities management.</p>
@@ -1617,7 +1617,7 @@
 
         <!-- Waste Audit -->
         <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
-          <div style="font-size:28px; margin-bottom:12px;">🔬</div>
+          <div style="font-size:28px; margin-bottom:12px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3h11l1.5 2v3h-14v-3l1.5-2z"></path><circle cx="12" cy="10" r="3"></circle><path d="M8 16h8"></path><path d="M10 20h4"></path><line x1="12" y1="13" x2="12" y2="20"></line></svg></div>
           <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">Waste Audit</h4>
           <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-warm); margin-bottom:8px;">$299<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /quarter</span></div>
           <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">Quarterly on-site waste audit with stream composition analysis, contamination scoring, and actionable recommendations to reduce costs and improve diversion.</p>
@@ -1625,7 +1625,7 @@
 
         <!-- API Access -->
         <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
-          <div style="font-size:28px; margin-bottom:12px;">🔗</div>
+          <div style="font-size:28px; margin-bottom:12px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></div>
           <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">API Access</h4>
           <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-primary); margin-bottom:8px;">$59<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /mo</span></div>
           <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">REST API access for ERP, property management, or BMS integration. Webhooks for real-time collection events, billing sync, and bin fleet telemetry.</p>
@@ -1701,28 +1701,28 @@
         </div>
 
         <div class="s-feature">
-          <div class="s-feature-icon blue">📡</div>
+          <div class="s-feature-icon blue"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17l5.15-5.15a3 3 0 1 1 4.24 0L22 3"></path><path d="M7 7l3.14-3.14a3 3 0 1 1 4.24 0"></path></svg></div>
           <div>
             <h4>RFID Bin Tracking</h4>
             <p>Every 120 lt and 240 lt wheelie bin is tagged with a unique RFID identifier. Lifts are confirmed automatically — no more disputed service records or missed collections.</p>
           </div>
         </div>
         <div class="s-feature">
-          <div class="s-feature-icon purple">🗺️</div>
+          <div class="s-feature-icon purple"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><polyline points="8 2 8 18"></polyline><polyline points="16 2 16 18"></polyline></svg></div>
           <div>
             <h4>Dynamic Route Optimisation</h4>
             <p>On-demand requests are intelligently inserted into live routes. ThinkOS's algorithm reduces total drive time by up to 30% compared to static schedule planning.</p>
           </div>
         </div>
         <div class="s-feature">
-          <div class="s-feature-icon green">📊</div>
+          <div class="s-feature-icon green"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
           <div>
             <h4>Dual Operator Portals</h4>
             <p>Separate dashboards for commercial operators and councils. Councils see aggregated service data and compliance reports; operators see bin-level booking and billing details.</p>
           </div>
         </div>
         <div class="s-feature">
-          <div class="s-feature-icon warm">♻️</div>
+          <div class="s-feature-icon warm"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg></div>
           <div>
             <h4>Waste Stream Analytics</h4>
             <p>Track general waste, recyclables, and organics by bin, by site, and by precinct. Data feeds directly into council sustainability reporting requirements.</p>
@@ -1745,14 +1745,14 @@
     <div class="bins-tabs-wrapper">
       <div class="bins-tab-nav">
         <button class="bin-tab-btn active" onclick="switchBinTab('240')">
-          <span class="tab-accent">🗑️</span>
+          <span class="tab-accent"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></span>
           <div>
             <div>240 Litre Wheelie Bin</div>
             <div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px;">High-volume commercial</div>
           </div>
         </button>
         <button class="bin-tab-btn" onclick="switchBinTab('120')">
-          <span class="tab-accent">🪣</span>
+          <span class="tab-accent"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 4h6v4H9z"></path><path d="M8 12h8"></path></svg></span>
           <div>
             <div>120 Litre Wheelie Bin</div>
             <div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px;">Compact commercial</div>
@@ -1769,36 +1769,36 @@
               <!-- SVG Wheelie Bin 240L -->
               <svg class="bin-svg" viewBox="0 0 200 280" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <!-- Bin body -->
-                <rect x="30" y="70" width="140" height="180" rx="10" fill="#1a2332"/>
+                <rect x="30" y="70" width="140" height="180" rx="10" fill="#f5f5f5"/>
                 <rect x="30" y="70" width="140" height="180" rx="10" fill="url(#binGrad240)" opacity="0.6"/>
                 <!-- Lid -->
-                <rect x="22" y="44" width="156" height="34" rx="8" fill="#0ea5e9" opacity="0.9"/>
+                <rect x="22" y="44" width="156" height="34" rx="8" fill="#43B02A" opacity="0.9"/>
                 <rect x="22" y="44" width="156" height="34" rx="8" fill="url(#lidGrad)" opacity="0.4"/>
                 <!-- Handle on lid -->
-                <rect x="70" y="40" width="60" height="10" rx="5" fill="#0d1117"/>
+                <rect x="70" y="40" width="60" height="10" rx="5" fill="#e8e8e8"/>
                 <!-- Body detail lines -->
                 <rect x="30" y="120" width="140" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
                 <rect x="30" y="170" width="140" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
                 <rect x="30" y="220" width="140" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
                 <!-- RFID chip indicator -->
-                <rect x="56" y="88" width="88" height="20" rx="4" fill="rgba(14,165,233,0.12)" stroke="rgba(14,165,233,0.3)" stroke-width="1"/>
-                <text x="100" y="102" text-anchor="middle" font-family="monospace" font-size="9" fill="#0ea5e9">STIRLING RFID</text>
+                <rect x="56" y="88" width="88" height="20" rx="4" fill="rgba(67,176,42,0.12)" stroke="rgba(67,176,42,0.3)" stroke-width="1"/>
+                <text x="100" y="102" text-anchor="middle" font-family="monospace" font-size="9" fill="#43B02A">STIRLING RFID</text>
                 <!-- Volume label -->
                 <text x="100" y="148" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" font-weight="800" fill="rgba(255,255,255,0.85)">240</text>
                 <text x="100" y="166" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" letter-spacing="2">LITRES</text>
                 <!-- Wheels -->
-                <circle cx="62" cy="254" r="14" fill="#0d1117" stroke="#1a2332" stroke-width="2"/>
-                <circle cx="62" cy="254" r="7" fill="#0ea5e9" opacity="0.4"/>
-                <circle cx="138" cy="254" r="14" fill="#0d1117" stroke="#1a2332" stroke-width="2"/>
-                <circle cx="138" cy="254" r="7" fill="#0ea5e9" opacity="0.4"/>
+                <circle cx="62" cy="254" r="14" fill="#e8e8e8" stroke="#f5f5f5" stroke-width="2"/>
+                <circle cx="62" cy="254" r="7" fill="#43B02A" opacity="0.4"/>
+                <circle cx="138" cy="254" r="14" fill="#e8e8e8" stroke="#f5f5f5" stroke-width="2"/>
+                <circle cx="138" cy="254" r="7" fill="#43B02A" opacity="0.4"/>
                 <!-- Axle -->
-                <rect x="62" y="248" width="76" height="4" rx="2" fill="#1a2332"/>
+                <rect x="62" y="248" width="76" height="4" rx="2" fill="#f5f5f5"/>
                 <!-- Shine highlight -->
                 <rect x="36" y="76" width="12" height="160" rx="6" fill="rgba(255,255,255,0.04)"/>
                 <defs>
                   <linearGradient id="binGrad240" x1="30" y1="70" x2="170" y2="250" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.25"/>
-                    <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.1"/>
+                    <stop offset="0%" stop-color="#43B02A" stop-opacity="0.25"/>
+                    <stop offset="100%" stop-color="#2d8a1e" stop-opacity="0.1"/>
                   </linearGradient>
                   <linearGradient id="lidGrad" x1="22" y1="44" x2="178" y2="78" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stop-color="#fff" stop-opacity="0.3"/>
@@ -1822,28 +1822,28 @@
 
             <div class="bin-use-cases">
               <div class="use-case">
-                <div class="use-case-icon">🏪</div>
+                <div class="use-case-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18"></path><circle cx="9" cy="15" r="2"></circle><circle cx="15" cy="15" r="2"></circle></svg></div>
                 <div>
                   <h5>Retail & Hospitality</h5>
                   <p>Ideal for restaurants, cafes, hotels, and retail precincts generating high daily waste volumes. On-demand scheduling means collection happens when bins are full — not on a fixed calendar.</p>
                 </div>
               </div>
               <div class="use-case">
-                <div class="use-case-icon">🏗️</div>
+                <div class="use-case-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="8" height="8"></rect><path d="M12 3v8"></path><path d="M14 3h4v8"></path><path d="M2 13h18"></path><rect x="2" y="15" width="8" height="8"></rect><rect x="12" y="15" width="8" height="8"></rect></svg></div>
                 <div>
                   <h5>Commercial Premises</h5>
                   <p>Office buildings, industrial sites, and mixed-use developments use 240 lt bins for general waste, co-mingled recycling, and organics streams managed under a single ThinkOS account.</p>
                 </div>
               </div>
               <div class="use-case">
-                <div class="use-case-icon">🏙️</div>
+                <div class="use-case-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="6" height="18"></rect><rect x="9" y="2" width="6" height="19"></rect><rect x="16" y="5" width="6" height="14"></rect><line x1="2" y1="21" x2="22" y2="21"></line></svg></div>
                 <div>
                   <h5>Council Public Spaces</h5>
                   <p>Parks, streetscapes, markets, and event precincts managed by councils. ThinkOS's sensor triggers alert crews before overflow — eliminating litter and public complaints.</p>
                 </div>
               </div>
               <div class="use-case">
-                <div class="use-case-icon">🏘️</div>
+                <div class="use-case-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
                 <div>
                   <h5>Strata & Multi-Residential</h5>
                   <p>Body corporate and strata managers replace unpredictable fixed schedules with demand-responsive collection, reducing skip bin hire costs significantly.</p>
@@ -1852,7 +1852,7 @@
             </div>
 
             <div class="bin-schedule-note">
-              <span>✅</span>
+              <span><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></span>
               On-demand collection available 7 days — book via the ThinkOS portal, app or API. Same-day service available in metropolitan areas.
             </div>
           </div>
@@ -1867,28 +1867,28 @@
               <div class="bin-badge" style="background:var(--gradient-green)">120 lt</div>
               <!-- SVG Wheelie Bin 120L -->
               <svg class="bin-svg" viewBox="0 0 200 280" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="42" y="80" width="116" height="162" rx="10" fill="#1a2332"/>
+                <rect x="42" y="80" width="116" height="162" rx="10" fill="#f5f5f5"/>
                 <rect x="42" y="80" width="116" height="162" rx="10" fill="url(#binGrad120)" opacity="0.6"/>
-                <rect x="34" y="54" width="132" height="32" rx="8" fill="#10b981" opacity="0.9"/>
+                <rect x="34" y="54" width="132" height="32" rx="8" fill="#43B02A" opacity="0.9"/>
                 <rect x="34" y="54" width="132" height="32" rx="8" fill="url(#lidGrad120)" opacity="0.4"/>
-                <rect x="74" y="50" width="52" height="10" rx="5" fill="#0d1117"/>
+                <rect x="74" y="50" width="52" height="10" rx="5" fill="#e8e8e8"/>
                 <rect x="42" y="122" width="116" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
                 <rect x="42" y="162" width="116" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
                 <rect x="42" y="202" width="116" height="2" fill="rgba(255,255,255,0.06)" rx="1"/>
                 <rect x="62" y="94" width="76" height="18" rx="4" fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
-                <text x="100" y="107" text-anchor="middle" font-family="monospace" font-size="8" fill="#10b981">STIRLING RFID</text>
+                <text x="100" y="107" text-anchor="middle" font-family="monospace" font-size="8" fill="#43B02A">STIRLING RFID</text>
                 <text x="100" y="152" text-anchor="middle" font-family="Inter, sans-serif" font-size="24" font-weight="800" fill="rgba(255,255,255,0.85)">120</text>
                 <text x="100" y="170" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" letter-spacing="2">LITRES</text>
-                <circle cx="68" cy="254" r="13" fill="#0d1117" stroke="#1a2332" stroke-width="2"/>
-                <circle cx="68" cy="254" r="7" fill="#10b981" opacity="0.4"/>
-                <circle cx="132" cy="254" r="13" fill="#0d1117" stroke="#1a2332" stroke-width="2"/>
-                <circle cx="132" cy="254" r="7" fill="#10b981" opacity="0.4"/>
-                <rect x="68" y="248" width="64" height="4" rx="2" fill="#1a2332"/>
+                <circle cx="68" cy="254" r="13" fill="#e8e8e8" stroke="#f5f5f5" stroke-width="2"/>
+                <circle cx="68" cy="254" r="7" fill="#43B02A" opacity="0.4"/>
+                <circle cx="132" cy="254" r="13" fill="#e8e8e8" stroke="#f5f5f5" stroke-width="2"/>
+                <circle cx="132" cy="254" r="7" fill="#43B02A" opacity="0.4"/>
+                <rect x="68" y="248" width="64" height="4" rx="2" fill="#f5f5f5"/>
                 <rect x="48" y="86" width="10" height="148" rx="5" fill="rgba(255,255,255,0.04)"/>
                 <defs>
                   <linearGradient id="binGrad120" x1="42" y1="80" x2="158" y2="242" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
-                    <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.1"/>
+                    <stop offset="0%" stop-color="#43B02A" stop-opacity="0.25"/>
+                    <stop offset="100%" stop-color="#43B02A" stop-opacity="0.1"/>
                   </linearGradient>
                   <linearGradient id="lidGrad120" x1="34" y1="54" x2="166" y2="86" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stop-color="#fff" stop-opacity="0.3"/>
@@ -1912,28 +1912,28 @@
 
             <div class="bin-use-cases">
               <div class="use-case">
-                <div class="use-case-icon">☕</div>
+                <div class="use-case-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg></div>
                 <div>
                   <h5>Small Food & Beverage</h5>
                   <p>Coffee shops, food trucks, kiosks, and bakeries with limited bin storage space. Two 120 lt bins in a tight courtyard replace one bulky larger unit without compromising capacity.</p>
                 </div>
               </div>
               <div class="use-case">
-                <div class="use-case-icon">🏥</div>
+                <div class="use-case-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M12 7v10"></path><path d="M7 12h10"></path></svg></div>
                 <div>
                   <h5>Medical & Allied Health</h5>
                   <p>Clinics, dental practices, and allied health operators requiring separate streams for clinical and general waste in a compact, hygienic footprint.</p>
                 </div>
               </div>
               <div class="use-case">
-                <div class="use-case-icon">🏫</div>
+                <div class="use-case-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"></path><polyline points="2 10 2 20 22 20 22 10"></polyline><line x1="7" y1="15" x2="7" y2="20"></line><line x1="12" y1="15" x2="12" y2="20"></line><line x1="17" y1="15" x2="17" y2="20"></line></svg></div>
                 <div>
                   <h5>Schools & Institutions</h5>
                   <p>Educational facilities and community organisations benefit from the flexibility of 120 lt bins distributed across multiple zones — all tracked centrally through ThinkOS.</p>
                 </div>
               </div>
               <div class="use-case">
-                <div class="use-case-icon">🛒</div>
+                <div class="use-case-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></div>
                 <div>
                   <h5>Markets & Events</h5>
                   <p>Temporary markets and events managed by councils or operators can deploy and retrieve 120 lt bins on-demand — no ongoing service contracts required.</p>
@@ -1942,7 +1942,7 @@
             </div>
 
             <div class="bin-schedule-note" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.2);">
-              <span>✅</span>
+              <span><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></span>
               On-demand collection available 7 days. 120 lt bins ideal for pairing with 240 lt bins across multi-stream waste separation.
             </div>
           </div>
@@ -1962,46 +1962,46 @@
     </div>
 
     <div class="op-tabs-nav" id="opTabs">
-      <button class="op-tab-btn active" onclick="switchOpTab('commercial')">🏢 Commercial Operators</button>
-      <button class="op-tab-btn" onclick="switchOpTab('council')">🏛️ Council Operators</button>
-      <button class="op-tab-btn" onclick="switchOpTab('brokerage')">🤝 Brokerage</button>
+      <button class="op-tab-btn active" onclick="switchOpTab('commercial')"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg> Commercial Operators</button>
+      <button class="op-tab-btn" onclick="switchOpTab('council')"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M7 9h1M7 13h1M11 9h1M11 13h1M15 9h1M15 13h1"></path></svg> Council Operators</button>
+      <button class="op-tab-btn" onclick="switchOpTab('brokerage')"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 12a5 5 0 0 0-10 0"></path><line x1="12" y1="9" x2="12" y2="3"></line><path d="M6.5 7a3.5 3.5 0 0 1 7 0"></path></svg> Brokerage</button>
     </div>
 
     <!-- Commercial Panel -->
     <div class="op-panel active" id="op-commercial">
       <div class="op-cards-grid">
         <div class="op-card">
-          <span class="op-card-icon">📲</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg></span>
           <h4>Self-Service Booking Portal</h4>
           <p>Commercial operators book, reschedule, and cancel collections 24/7 through the ThinkOS web portal or mobile app. No phone calls, no manual bookings, no delays.</p>
           <div class="op-card-tag">Web + Mobile</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">💳</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></span>
           <h4>Usage-Based Billing</h4>
           <p>Only pay for collections that happen. ThinkOS generates automated invoices per lift with bin ID, timestamp, and weight data attached — no disputes, no manual reconciliation.</p>
           <div class="op-card-tag">Automated</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">🔔</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></span>
           <h4>Real-Time Collection Alerts</h4>
           <p>Push notifications and email alerts confirm when your bins have been lifted. Missed collection? An automatic alert is raised and a re-collection is scheduled within 4 hours.</p>
           <div class="op-card-tag">Push + Email</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">📈</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 17"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg></span>
           <h4>Waste Volume Reporting</h4>
           <p>View monthly and quarterly waste generation trends by stream. Use the data to right-size your bin fleet, reduce costs, and demonstrate environmental performance to stakeholders.</p>
           <div class="op-card-tag">Analytics</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">🔗</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span>
           <h4>API Integration</h4>
           <p>Connect ThinkOS directly to your facilities management platform, ERP, or property management system via our REST API. Automate collections based on fill-level thresholds or business events.</p>
           <div class="op-card-tag">REST API</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">🗂️</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9l2 3z"></path></svg></span>
           <h4>Multi-Site Management</h4>
           <p>Manage 240 lt and 120 lt bins across multiple sites from a single login. Assign cost centres, set service frequencies per site, and export consolidated reports at entity level.</p>
           <div class="op-card-tag">Enterprise Ready</div>
@@ -2012,12 +2012,12 @@
     <!-- Brokerage Panel -->
     <div class="op-panel" id="op-brokerage">
       <div style="text-align:center; padding: 80px 24px;">
-        <div style="font-size:64px; margin-bottom:24px;">🔍</div>
+        <div style="font-size:64px; margin-bottom:24px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg></div>
         <h3 style="font-family:var(--font-display); font-size:32px; margin-bottom:16px;">Find A <span class="gradient-text">ThinkOS Operator</span> in Your Area</h3>
         <p style="color:var(--text-secondary); font-size:16px; max-width:560px; margin:0 auto 40px;">Connect with verified ThinkOS operators servicing your region. Browse available operators, compare service coverage, and request a quote — all through the platform.</p>
         <div class="op-cards-grid" style="max-width:900px; margin:0 auto;">
           <div class="op-card">
-            <span class="op-card-icon">📍</span>
+            <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
             <h4>Search by Location</h4>
             <p>Enter your suburb or postcode to discover ThinkOS operators with active coverage in your area. See real-time availability and service zones on an interactive map.</p>
             <div class="op-card-tag">Location-Based</div>
@@ -2029,7 +2029,7 @@
             <div class="op-card-tag">Trust & Safety</div>
           </div>
           <div class="op-card">
-            <span class="op-card-icon">📩</span>
+            <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 22 20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V12m20 0l-8.97-5.7a2 2 0 0 0-2.06 0L2 12m0 0h20"></polyline></svg></span>
             <h4>Request a Quote</h4>
             <p>Select your bin size, waste stream, and collection frequency. ThinkOS sends your request to matched operators who respond with competitive, usage-based pricing.</p>
             <div class="op-card-tag">Instant Matching</div>
@@ -2042,37 +2042,37 @@
     <div class="op-panel" id="op-council">
       <div class="op-cards-grid">
         <div class="op-card">
-          <span class="op-card-icon">🗺️</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><polyline points="8 2 8 18"></polyline><polyline points="16 2 16 18"></polyline></svg></span>
           <h4>Precinct-Level Mapping</h4>
           <p>Visualise all 120 lt and 240 lt bin assets across your LGA on a live map. Track service status, fill levels, and collection history by precinct, ward, or street with one click.</p>
           <div class="op-card-tag">GIS Dashboard</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">📋</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></span>
           <h4>Compliance Reporting</h4>
           <p>Automated reports for EPA requirements, waste levy reporting, and council environmental dashboards. ThinkOS handles the data aggregation — your team signs off and submits.</p>
           <div class="op-card-tag">Audit Ready</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">🚨</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 2 17 12 22 22 17 22 7 12 2"></polygon><line x1="12" y1="12" x2="12" y2="16"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>
           <h4>Overflow & Hotspot Alerts</h4>
           <p>Receive instant alerts when bins in public spaces approach capacity. ThinkOS automatically dispatches the nearest crew to prevent overflow and the associated public complaints.</p>
           <div class="op-card-tag">Smart Alerts</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">🌿</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7"></path><path d="M12 10l3 5-3-2-3 2 3-5"></path></svg></span>
           <h4>Sustainability Metrics</h4>
           <p>Track diversion rates, tonnes avoided from landfill, carbon emissions from collection, and recycling stream contamination — all aligned to council sustainability strategy KPIs.</p>
           <div class="op-card-tag">ESG Reporting</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">🤝</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 12a5 5 0 0 0-10 0"></path><line x1="12" y1="9" x2="12" y2="3"></line><path d="M6.5 7a3.5 3.5 0 0 1 7 0"></path></svg></span>
           <h4>Contractor Management</h4>
           <p>Councils using multiple collection contractors can onboard all of them into ThinkOS. Unified data, unified reporting, one portal — regardless of who holds the collection contract.</p>
           <div class="op-card-tag">Multi-Contractor</div>
         </div>
         <div class="op-card">
-          <span class="op-card-icon">📅</span>
+          <span class="op-card-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
           <h4>Event & Seasonal Flex</h4>
           <p>Scale bin deployment and collection frequency up or down for events, Christmas periods, or changes in community usage. On-demand model means no penalty costs for flexibility.</p>
           <div class="op-card-tag">Flexible Capacity</div>
@@ -2093,25 +2093,25 @@
 
     <div class="how-steps">
       <div class="how-step">
-        <div class="how-step-num">🏗️</div>
+        <div class="how-step-num"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="8" height="8"></rect><path d="M12 3v8"></path><path d="M14 3h4v8"></path><path d="M2 13h18"></path><rect x="2" y="15" width="8" height="8"></rect><rect x="12" y="15" width="8" height="8"></rect></svg></div>
         <h4>Setup Your Account</h4>
         <p>Register as a commercial operator or council via the ThinkOS portal. Add your bin assets, sites, and preferences in under 10 minutes. RFID tags ship pre-programmed.</p>
         <div class="how-step-tag">Day 1</div>
       </div>
       <div class="how-step">
-        <div class="how-step-num">📲</div>
+        <div class="how-step-num"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg></div>
         <h4>Request a Collection</h4>
         <p>Tap the app, click the portal, or let your smart bin sensor trigger automatically. Select 120 lt or 240 lt bins, waste stream, and preferred time window.</p>
         <div class="how-step-tag">On Demand</div>
       </div>
       <div class="how-step">
-        <div class="how-step-num">🚛</div>
+        <div class="how-step-num"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7"></path><rect x="3" y="6" width="14" height="12"></rect><circle cx="7" cy="19" r="2"></circle><circle cx="17" cy="19" r="2"></circle><path d="M18 7h4"></path></svg></div>
         <h4>ThinkOS Dispatches Crew</h4>
         <p>The platform routes the nearest available vehicle. Your driver receives the job on the ThinkOS app with full bin details, site access notes, and turn-by-turn navigation.</p>
         <div class="how-step-tag">Automated</div>
       </div>
       <div class="how-step">
-        <div class="how-step-num">✅</div>
+        <div class="how-step-num"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
         <h4>Collection Confirmed</h4>
         <p>RFID scan confirms the lift. You receive an instant notification with time, bin ID, and weight. Invoice is generated automatically and available in your portal within minutes.</p>
         <div class="how-step-tag">Instant</div>
@@ -2131,47 +2131,47 @@
 
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon fi-blue">📡</div>
+        <div class="feature-icon fi-blue"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17l5.15-5.15a3 3 0 1 1 4.24 0L22 3"></path><path d="M7 7l3.14-3.14a3 3 0 1 1 4.24 0"></path></svg></div>
         <h4>RFID Smart Bin Tracking</h4>
         <p>Every bin carries a permanent RFID tag. Lifts are confirmed in real time — no manual dockets, no disputed service records. Full chain-of-custody from bin to tip.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon fi-purple">🗺️</div>
+        <div class="feature-icon fi-purple"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><polyline points="8 2 8 18"></polyline><polyline points="16 2 16 18"></polyline></svg></div>
         <h4>AI Route Optimisation</h4>
         <p>Dynamic on-demand jobs are automatically inserted into optimal routes. Reduces empty kilometres, fuel costs, and carbon emissions across the entire collection fleet.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon fi-green">♻️</div>
+        <div class="feature-icon fi-green"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg></div>
         <h4>Multi-Stream Waste Management</h4>
         <p>Manage general waste, co-mingled recyclables, glass, organics, and cardboard streams separately — all through a single ThinkOS account and tracked by bin.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon fi-warm">📊</div>
+        <div class="feature-icon fi-warm"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
         <h4>Real-Time Analytics Dashboard</h4>
         <p>Live view of bin fill levels, collection history, waste volumes, and cost per lift. Export data in CSV or connect via API to your internal reporting tools.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon fi-cyan">🔔</div>
+        <div class="feature-icon fi-cyan"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div>
         <h4>Overflow Prevention Alerts</h4>
         <p>Smart sensors detect fill levels and automatically trigger collections before bins overflow. Critical for council-managed public spaces and high-traffic commercial sites.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon fi-red">⚡</div>
+        <div class="feature-icon fi-red"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline></svg></div>
         <h4>Same-Day Emergency Collections</h4>
         <p>Unexpected volume spike? Submit an emergency collection request via the ThinkOS app. Available in all metropolitan Australian cities with a 4-hour response window.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon fi-blue">🔗</div>
+        <div class="feature-icon fi-blue"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></div>
         <h4>Open REST API</h4>
         <p>Full API access for enterprise integrations. Connect ThinkOS to your property management system, ERP, building management platform, or IoT infrastructure.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon fi-purple">📋</div>
+        <div class="feature-icon fi-purple"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div>
         <h4>Compliance & Audit Reporting</h4>
         <p>Automated EPA and council compliance reporting. All collection data is immutably logged with GPS coordinates, timestamps, and operator credentials — audit-ready at all times.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon fi-green">🌿</div>
+        <div class="feature-icon fi-green"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7"></path><path d="M12 10l3 5-3-2-3 2 3-5"></path></svg></div>
         <h4>Carbon & Sustainability Metrics</h4>
         <p>Track your carbon footprint from waste operations. ThinkOS calculates collection route emissions and diverted-from-landfill volumes for your ESG and sustainability reporting.</p>
       </div>
@@ -2197,15 +2197,15 @@
           <div style="font-size:12px;color:var(--text-muted)">Australia-Wide Service</div>
         </div>
         <div style="text-align:center">
-          <div style="font-size:22px;margin-bottom:4px">🏆</div>
+          <div style="font-size:22px;margin-bottom:4px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-12a2 2 0 0 0-2-2h-2"></path><path d="M6 9a6 6 0 0 1 12 0"></path><line x1="12" y1="14" x2="12" y2="20"></line></svg></div>
           <div style="font-size:12px;color:var(--text-muted)">Commercial & Council Ready</div>
         </div>
         <div style="text-align:center">
-          <div style="font-size:22px;margin-bottom:4px">⚡</div>
+          <div style="font-size:22px;margin-bottom:4px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline></svg></div>
           <div style="font-size:12px;color:var(--text-muted)">4-Hour Emergency Response</div>
         </div>
         <div style="text-align:center">
-          <div style="font-size:22px;margin-bottom:4px">🔒</div>
+          <div style="font-size:22px;margin-bottom:4px"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
           <div style="font-size:12px;color:var(--text-muted)">ISO 27001 Data Security</div>
         </div>
       </div>
@@ -2219,8 +2219,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <a href="#" class="nav-logo" style="text-decoration:none;margin-bottom:14px;display:inline-flex;">
-          <div class="nav-logo-icon">♻</div>
-          Matter - On Demand
+          <svg viewBox="40 48 680 148" xmlns="http://www.w3.org/2000/svg"><path fill="#205c40" d="M43.51,82.54h36.2v12.6c9.87-9.47,20.93-14.2,33.2-14.2,15.2,0,26.8,6.4,34.8,19.2,8.13-12.93,19.73-19.4,34.8-19.4,4.8,0,9.33.7,13.6,2.1,4.27,1.4,7.93,3.6,11,6.6,3.07,3,5.5,6.9,7.3,11.7s2.7,10.6,2.7,17.4v66.6h-36.2v-50.6c0-5.2-.37-9.47-1.1-12.8-.73-3.33-1.8-5.93-3.2-7.8-1.4-1.87-3.03-3.13-4.9-3.8-1.87-.67-3.87-1-6-1-11.6,0-17.4,8.47-17.4,25.4v50.6h-36.2v-50.6c0-5.2-.33-9.5-1-12.9-.67-3.4-1.63-6.1-2.9-8.1-1.27-2-2.9-3.37-4.9-4.1-2-.73-4.33-1.1-7-1.1-2.27,0-4.4.33-6.4,1-2,.67-3.77,1.97-5.3,3.9-1.53,1.93-2.73,4.6-3.6,8-.87,3.4-1.3,7.83-1.3,13.3v50.6h-36.2v-102.6Z"/><path fill="#205c40" d="M310.15,82.54h36.4v102.6h-36.4v-11.4c-7.73,9.73-18.2,14.6-31.4,14.6-7.47,0-14.34-1.37-20.6-4.1-6.27-2.73-11.73-6.57-16.4-11.5-4.67-4.93-8.3-10.73-10.9-17.4-2.6-6.67-3.9-13.93-3.9-21.8,0-7.33,1.27-14.3,3.8-20.9,2.53-6.6,6.06-12.37,10.6-17.3,4.53-4.93,9.93-8.83,16.2-11.7,6.27-2.87,13.2-4.3,20.8-4.3,12.8,0,23.4,4.47,31.8,13.4v-10.2ZM264.55,133.54c0,3.33.6,6.43,1.8,9.3,1.2,2.87,2.83,5.37,4.9,7.5,2.06,2.13,4.53,3.8,7.4,5,2.87,1.2,5.97,1.8,9.3,1.8s6.23-.6,9.1-1.8c2.87-1.2,5.33-2.87,7.4-5,2.07-2.13,3.73-4.6,5-7.4,1.27-2.8,1.9-5.8,1.9-9s-.63-6.23-1.9-9.1c-1.27-2.87-2.93-5.37-5-7.5-2.07-2.13-4.54-3.8-7.4-5-2.87-1.2-5.9-1.8-9.1-1.8s-6.43.6-9.3,1.8c-2.87,1.2-5.33,2.87-7.4,5-2.07,2.13-3.7,4.57-4.9,7.3-1.2,2.73-1.8,5.7-1.8,8.9Z"/><path fill="#205c40" d="M403.53,112.74v72.4h-36.2v-72.4h-12v-30.2h12v-30.8h36.2v30.8h20.6v30.2h-20.6Z"/><path fill="#205c40" d="M470.39,112.74v72.4h-36.2v-72.4h-12v-30.2h12v-30.8h36.2v30.8h20.6v30.2h-20.6Z"/><path fill="#205c40" d="M527.92,139.94c0,15.6,7.33,23.4,22,23.4,7.87,0,13.8-3.2,17.8-9.6h35c-7.07,23.47-24.73,35.2-53,35.2-8.67,0-16.6-1.3-23.8-3.9-7.2-2.6-13.37-6.3-18.5-11.1-5.13-4.8-9.1-10.53-11.9-17.2-2.8-6.67-4.2-14.13-4.2-22.4s1.33-16.23,4-23.1c2.66-6.87,6.46-12.7,11.4-17.5,4.93-4.8,10.9-8.5,17.9-11.1s14.9-3.9,23.7-3.9,16.46,1.3,23.4,3.9c6.93,2.6,12.8,6.37,17.6,11.3,4.8,4.93,8.46,10.97,11,18.1,2.53,7.13,3.8,15.17,3.8,24.1v3.8h-76.2ZM570.32,118.94c-1.2-5.07-3.67-9.13-7.4-12.2-3.73-3.07-8.27-4.6-13.6-4.6-5.6,0-10.17,1.47-13.7,4.4-3.53,2.93-5.77,7.07-6.7,12.4h41.4Z"/><path fill="#205c40" d="M614.9,82.54h36.2v16.8c3.87-6.13,8.6-10.83,14.2-14.1,5.6-3.27,12.13-4.9,19.6-4.9h3.1c1.13,0,2.43.13,3.9.4v34.6c-4.8-2.4-10-3.6-15.6-3.6-8.4,0-14.7,2.5-18.9,7.5-4.2,5-6.3,12.3-6.3,21.9v44h-36.2v-102.6Z"/><circle fill="#43b02a" cx="697.01" cy="170.74" r="17.55"/></svg>
         </a>
         <p>On-demand 120 lt and 240 lt wheelie bin collections for commercial operators and councils across Australia. Powered by ThinkOS - On Demand.</p>
         <div style="margin-top:16px;display:flex;gap:10px;">
@@ -2295,7 +2294,7 @@
   function coreClick() {
     const core = document.querySelector('.stirling-core');
     core.style.transform = 'scale(1.06)';
-    core.style.boxShadow = '0 0 120px rgba(14,165,233,0.5), 0 0 240px rgba(124,58,237,0.3)';
+    core.style.boxShadow = '0 0 120px rgba(67,176,42,0.5), 0 0 240px rgba(45,138,30,0.3)';
     // Ripple all nodes
     document.querySelectorAll('.s-node').forEach((n, i) => {
       setTimeout(() => {
@@ -2347,7 +2346,7 @@
   (function() {
     const viz = document.querySelector('.stirling-viz');
     if (!viz) return;
-    const colors = ['#0ea5e9','#7c3aed','#10b981'];
+    const colors = ['#43B02A','#2d8a1e','#43B02A'];
     for (let i = 0; i < 3; i++) {
       const dot = document.createElement('div');
       dot.style.cssText = `
@@ -2654,7 +2653,7 @@
     <!-- CTA Banner -->
     <div class="modal-cta">
       <div class="modal-cta-text">
-        <div class="modal-cta-icon">📍</div>
+        <div class="modal-cta-icon"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
         <div class="modal-cta-copy">
           <strong>Let Us Know if Your Council Area is Not on this List — We're Here to Help</strong>
           <span>We're expanding coverage constantly. Get in touch and we'll work to bring ThinkOS - On Demand to your area.</span>
