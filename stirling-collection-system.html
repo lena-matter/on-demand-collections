@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>City of Stirling — On-Demand Commercial Waste Collection System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root {
+    --stirling-green: #1B6B3A;
+    --stirling-light: #2d9254;
+    --stirling-pale: #4ab870;
+    --bg-deep: #0b1520;
+    --bg-panel: #111e2d;
+    --bg-card: #172436;
+    --bg-hover: #1e3048;
+    --border: #243650;
+    --text-primary: #e8f4ff;
+    --text-secondary: #7fa8c8;
+    --text-muted: #4a6a85;
+    --think-blue: #00b4d8;
+    --think-blue-dark: #0077a8;
+    --alert-red: #e05252;
+    --alert-orange: #e8943a;
+    --alert-yellow: #d4b94a;
+    --success: #3dc98a;
+    --east-zone: rgba(0, 180, 216, 0.18);
+    --west-zone: rgba(27, 107, 58, 0.18);
+    --route-color: #00b4d8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+  html, body { height: 100%; }
+  body { background: var(--bg-deep); color: var(--text-primary); height: 100vh; display: grid; grid-template-rows: 52px 1fr auto; overflow: hidden; }
+
+  /* ── TOP NAV ── */
+  .topnav {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border);
+    padding: 0 16px; height: 52px; flex-shrink: 0; z-index: 1000;
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 34px; height: 34px; background: var(--stirling-green);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 16px; color: white; letter-spacing: -1px;
+  }
+  .logo-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .logo-sub { font-size: 10px; color: var(--text-secondary); font-weight: 400; }
+  .live-badge {
+    background: var(--stirling-green); color: white; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px; letter-spacing: 1px;
+    animation: pulse-green 2s infinite;
+  }
+  @keyframes pulse-green {
+    0%,100% { box-shadow: 0 0 0 0 rgba(27,107,58,0.5); }
+    50% { box-shadow: 0 0 0 6px rgba(27,107,58,0); }
+  }
+  .nav-tabs { display: flex; gap: 5px; margin-left: 20px; align-items: center; }
+  .nav-tab {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; padding: 5px 14px; border-radius: 9px; font-size: 11px; font-weight: 600;
+    color: var(--text-secondary); cursor: pointer;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+    transition: all 0.18s; line-height: 1; min-width: 64px;
+    letter-spacing: .2px;
+  }
+  .nav-tab .tab-icon { font-size: 15px; line-height: 1; }
+  .nav-tab .tab-label { font-size: 10px; }
+  .nav-tab:hover {
+    background: var(--bg-hover); color: var(--text-primary);
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07);
+    transform: translateY(-1px);
+  }
+  .nav-tab.active {
+    background: linear-gradient(145deg, var(--stirling-light), var(--stirling-green));
+    color: #fff; border-color: rgba(27,107,58,0.7);
+    box-shadow: 0 4px 14px rgba(27,107,58,0.45), 0 0 0 1px rgba(27,107,58,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+    transform: translateY(-1px);
+  }
+  .nav-tab.clay-tab {
+    background: linear-gradient(145deg, rgba(99,102,241,0.18), rgba(139,92,246,0.12));
+    border-color: rgba(139,92,246,0.35);
+  }
+  .nav-tab.clay-tab.active {
+    background: linear-gradient(145deg, #6366f1, #8b5cf6);
+    border-color: rgba(139,92,246,0.7);
+    box-shadow: 0 4px 14px rgba(99,102,241,0.45), 0 0 0 1px rgba(99,102,241,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .api-status-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 5px 12px; border-radius: 20px; font-size: 12px;
+  }
+  .api-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .alert-btn {
+    background: var(--bg-card); border: 1px solid var(--border);
+    color: var(--text-secondary); padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+  }
+  .alert-count { background: var(--alert-red); color: white; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 10px; }
+  .settings-btn {
+    display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9px;
+    background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary);
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+    transition: all .18s;
+  }
+  .settings-btn:hover {
+    background: var(--bg-hover); color: var(--text-primary); border-color: rgba(255,255,255,0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35); transform: translateY(-1px);
+  }
+  /* ── SETTINGS DRAWER ── */
+  .settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 2000; opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .settings-overlay.open { opacity: 1; pointer-events: all; }
+  .settings-drawer {
+    position: fixed; top: 0; right: -680px; width: 660px; max-width: 95vw; height: 100vh;
+    background: var(--bg-panel); border-left: 1px solid var(--border);
+    box-shadow: -8px 0 40px rgba(0,0,0,0.5); z-index: 2001; overflow-y: auto;
+    transition: right .3s cubic-bezier(.4,0,.2,1);
+    display: flex; flex-direction: column;
+  }
+  .settings-drawer.open { right: 0; }
+  .settings-drawer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px; border-bottom: 1px solid var(--border);
+    background: var(--bg-deep); position: sticky; top: 0; z-index: 10;
+    flex-shrink: 0;
+  }
+  .settings-drawer-title { display: flex; align-items: center; gap: 10px; }
+  .settings-close-btn {
+    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-secondary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; line-height: 1;
+    transition: all .15s;
+  }
+  .settings-close-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: rgba(255,255,255,0.15); }
+  .settings-drawer-body { padding: 24px; flex: 1; }
+  .settings-section { margin-bottom: 28px; }
+  .settings-section-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .settings-section-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .settings-section-title { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+
+  /* ── MAIN LAYOUT ── */
+  .main-wrap { display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    width: 260px; flex-shrink: 0; background: var(--bg-panel);
+    border-right: 1px solid var(--border); overflow-y: auto;
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .left-panel::-webkit-scrollbar { width: 4px; }
+  .left-panel::-webkit-scrollbar-track { background: transparent; }
+  .left-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .panel-section { padding: 14px; border-bottom: 1px solid var(--border); }
+  .panel-section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-count {
+    background: var(--stirling-green); color: white; font-size: 9px;
+    padding: 1px 6px; border-radius: 10px; letter-spacing: 0;
+  }
+
+  /* Booking cards */
+  .booking-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px; margin-bottom: 8px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .booking-card:hover { border-color: var(--stirling-green); background: var(--bg-hover); }
+  .booking-card.urgent { border-left: 3px solid var(--alert-red); }
+  .booking-card.today { border-left: 3px solid var(--stirling-green); }
+  .booking-card.pending { border-left: 3px solid var(--alert-yellow); }
+  .booking-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+  .booking-id { font-size: 11px; font-weight: 700; color: var(--think-blue); }
+  .booking-status {
+    font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px; letter-spacing: 0.5px;
+  }
+  .status-collecting { background: rgba(61,201,138,0.2); color: var(--success); }
+  .status-scheduled { background: rgba(27,107,58,0.25); color: var(--stirling-pale); }
+  .status-pending { background: rgba(212,185,74,0.2); color: var(--alert-yellow); }
+  .status-missed { background: rgba(224,82,82,0.2); color: var(--alert-red); }
+  .booking-address { font-size: 11px; color: var(--text-primary); margin-bottom: 3px; font-weight: 500; }
+  .booking-suburb { font-size: 10px; color: var(--text-secondary); }
+  .booking-meta { display: flex; gap: 8px; margin-top: 6px; }
+  .booking-tag {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    font-size: 9px; color: var(--text-secondary); padding: 2px 6px; border-radius: 4px;
+  }
+  .booking-zone-tag {
+    font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 600;
+  }
+  .zone-east { background: rgba(0,180,216,0.15); color: var(--think-blue); }
+  .zone-west { background: rgba(27,107,58,0.2); color: var(--stirling-pale); }
+
+  /* Fleet */
+  .fleet-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px; margin-bottom: 8px;
+  }
+  .fleet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .fleet-id { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+  .fleet-status-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-active { background: var(--success); }
+  .dot-idle { background: var(--alert-yellow); }
+  .dot-unavailable { background: var(--alert-red); }
+  .fleet-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .fleet-stat { font-size: 10px; color: var(--text-secondary); }
+  .fleet-stat span { color: var(--text-primary); font-weight: 600; }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; }
+  .progress-fill { height: 100%; border-radius: 2px; background: var(--stirling-green); transition: width 0.3s; }
+
+  /* KPIs */
+  .kpi-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid var(--border);
+  }
+  .kpi-row:last-child { border-bottom: none; }
+  .kpi-label { font-size: 11px; color: var(--text-secondary); }
+  .kpi-value { font-size: 12px; font-weight: 700; }
+  .kpi-good { color: var(--success); }
+  .kpi-warn { color: var(--alert-yellow); }
+  .kpi-bad { color: var(--alert-red); }
+  .kpi-badge { font-size: 9px; padding: 1px 5px; border-radius: 8px; }
+  .kpi-badge-good { background: rgba(61,201,138,0.15); color: var(--success); }
+  .kpi-badge-warn { background: rgba(232,148,58,0.15); color: var(--alert-orange); }
+
+  /* ── CENTER MAP ── */
+  .map-container { flex: 1; position: relative; overflow: hidden; min-height: 400px; }
+  #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+  .map-controls {
+    position: absolute; top: 12px; left: 12px; z-index: 900;
+    display: flex; gap: 6px; flex-wrap: wrap; max-width: 340px;
+  }
+  .map-btn {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    color: var(--text-secondary); font-size: 12px; padding: 6px 12px;
+    border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .map-btn:hover { border-color: var(--stirling-green); color: var(--text-primary); }
+  .map-btn.active { background: var(--stirling-green); border-color: var(--stirling-green); color: white; }
+  .map-legend {
+    position: absolute; bottom: 80px; left: 12px; z-index: 900;
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+  }
+  .legend-title { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-secondary); margin-bottom: 5px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .legend-line { width: 18px; height: 3px; border-radius: 2px; }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    width: 280px; flex-shrink: 0; background: var(--bg-panel);
+    border-left: 1px solid var(--border); overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .right-panel::-webkit-scrollbar { width: 4px; }
+  .right-panel::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .stat-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px; margin-bottom: 8px;
+  }
+  .stat-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .stat-big { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+  .stat-change { font-size: 11px; margin-top: 4px; }
+  .change-up { color: var(--success); }
+  .change-down { color: var(--alert-red); }
+  .stat-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .stat-half { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
+  .stat-half .stat-big { font-size: 20px; }
+
+  /* API Panel */
+  .api-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px; margin-bottom: 8px;
+  }
+  .api-title { font-size: 10px; font-weight: 700; color: var(--think-blue); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .api-endpoint {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; background: var(--bg-panel); border-radius: 6px; margin-bottom: 5px;
+    border: 1px solid var(--border);
+  }
+  .endpoint-method { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+  .method-get { background: rgba(61,201,138,0.2); color: var(--success); }
+  .method-post { background: rgba(0,180,216,0.2); color: var(--think-blue); }
+  .method-put { background: rgba(212,185,74,0.2); color: var(--alert-yellow); }
+  .method-patch { background: rgba(232,148,58,0.2); color: var(--alert-orange); }
+  .endpoint-path { font-size: 11px; color: var(--text-primary); font-family: monospace; }
+  .endpoint-status { font-size: 9px; color: var(--success); }
+  .api-auth-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+  .api-auth-row:last-child { border-bottom: none; }
+  .auth-label { color: var(--text-muted); }
+  .auth-value { color: var(--success); font-weight: 600; }
+  .auth-value.pending { color: var(--alert-yellow); }
+
+  /* Privacy Notice Banner */
+  .privacy-banner {
+    background: rgba(0,180,216,0.1); border: 1px solid rgba(0,180,216,0.3);
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
+  }
+  .privacy-title { font-size: 10px; font-weight: 700; color: var(--think-blue); margin-bottom: 4px; }
+  .privacy-text { font-size: 10px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* ── BOTTOM BAR ── */
+  .bottom-bar {
+    background: var(--bg-panel); border-top: 1px solid var(--border);
+    padding: 8px 16px; display: flex; gap: 12px; align-items: center;
+    flex-shrink: 0; z-index: 500; overflow-x: auto;
+  }
+  .bottom-stat {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; display: flex;
+    align-items: center; gap: 10px; white-space: nowrap; flex-shrink: 0;
+  }
+  .bottom-stat-icon { font-size: 18px; }
+  .bottom-stat-label { font-size: 10px; color: var(--text-muted); }
+  .bottom-stat-value { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+  .bottom-stat-change { font-size: 10px; }
+
+  /* ── VIEWS ── */
+  .view-panel { display: none; overflow: hidden; flex-direction: column; }
+  .view-panel.active { display: flex; flex: 1; width: 100%; overflow: hidden; }
+  .view-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+  .view-scroll::-webkit-scrollbar { width: 6px; }
+  .view-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Bookings Table */
+  .table-container { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .table-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .table-title { font-size: 14px; font-weight: 700; }
+  .table-search {
+    background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 12px; border-radius: 6px; font-size: 12px; width: 200px; outline: none;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+  td { font-size: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+  tr:hover td { background: var(--bg-hover); }
+  tr:last-child td { border-bottom: none; }
+
+  /* Analytics */
+  .analytics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .analytics-card {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .analytics-card-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .analytics-big { font-size: 32px; font-weight: 700; }
+  .analytics-sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+  .bar-chart { margin-top: 12px; }
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .bar-label { font-size: 10px; color: var(--text-secondary); width: 90px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .bar-val { font-size: 10px; color: var(--text-secondary); width: 30px; text-align: right; flex-shrink: 0; }
+
+  /* KPI Table */
+  .kpi-table-wrap { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 16px; }
+  .kpi-table-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; }
+
+  /* Leaflet custom markers */
+  .custom-marker {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; border: 2px solid rgba(255,255,255,0.3);
+    cursor: pointer;
+  }
+  .marker-collecting { background: var(--stirling-green); }
+  .marker-scheduled { background: var(--think-blue-dark); }
+  .marker-pending { background: #8a6a00; }
+  .marker-missed { background: #a03030; }
+  .marker-vehicle { background: #1a3a5c; border: 2px solid var(--think-blue); }
+  .pulse-ring {
+    position: absolute; top: -4px; left: -4px;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid var(--stirling-green);
+    animation: expand-ring 2s infinite;
+  }
+  @keyframes expand-ring {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; max-width: 480px; width: 90%; position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 12px; right: 12px; background: var(--bg-card);
+    border: 1px solid var(--border); color: var(--text-secondary); width: 28px; height: 28px;
+    border-radius: 6px; cursor: pointer; font-size: 14px;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+  .modal-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .modal-row:last-child { border-bottom: none; }
+  .modal-label { color: var(--text-secondary); }
+  .modal-value { color: var(--text-primary); font-weight: 500; }
+
+  /* Tab content — #view-map MUST be row so left/map/right panels sit side-by-side.
+     flex-direction:column from .view-panel is overridden here via higher-specificity ID rule. */
+  #view-map { flex: 1; display: flex !important; flex-direction: row !important; overflow: hidden; min-height: 0; }
+  .map-view-inner { width: 100%; display: flex; flex-direction: row; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-deep); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── CLAY TAB ── */
+  .clay-wrap { display: flex; flex: 1; gap: 0; overflow: hidden; height: 100%; }
+  .clay-sidebar { width: 270px; flex-shrink: 0; background: var(--bg-panel); border-right: 1px solid var(--border); overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .clay-main { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .clay-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px; }
+  .clay-api-box { background: linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.08)); border: 1px solid rgba(139,92,246,0.35); border-radius: 10px; padding: 12px; }
+  .clay-api-box input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(139,92,246,0.4); border-radius: 6px; color: var(--text-primary); font-size: 11px; padding: 7px 10px; outline: none; font-family: monospace; }
+  .clay-api-box input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 2px rgba(139,92,246,0.2); }
+  .clay-mode-toggle { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+  .clay-mode-btn { flex: 1; border: none; padding: 6px 0; font-size: 11px; cursor: pointer; background: transparent; color: var(--text-secondary); }
+  .clay-mode-btn.active { background: rgba(139,92,246,0.25); color: #c4b5fd; font-weight: 700; }
+  .suburb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .suburb-cb { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); cursor: pointer; padding: 3px 0; }
+  .suburb-cb input { accent-color: #8b5cf6; cursor: pointer; }
+  .biz-type-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+  .biz-type-pill { font-size: 10px; padding: 4px 9px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; transition: all .15s; user-select: none; }
+  .biz-type-pill.active { background: rgba(139,92,246,0.2); border-color: #8b5cf6; color: #c4b5fd; }
+  .clay-search-btn { width: 100%; padding: 10px; border: none; border-radius: 8px; background: linear-gradient(135deg,#6366f1,#8b5cf6); color: white; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity .15s; }
+  .clay-search-btn:hover { opacity: 0.88; }
+  .clay-search-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .clay-results-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .clay-count-badge { background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.4); color: #c4b5fd; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .clay-export-btn { font-size: 11px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; }
+  .clay-export-btn:hover { border-color: #8b5cf6; color: #c4b5fd; }
+  .clay-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .clay-table th { padding: 9px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--bg-panel); position: sticky; top: 0; z-index: 2; white-space: nowrap; }
+  .clay-table td { padding: 10px 12px; border-bottom: 1px solid rgba(36,54,80,0.6); vertical-align: middle; color: var(--text-secondary); }
+  .clay-table tr:hover td { background: var(--bg-hover); }
+  .clay-table .biz-name { color: var(--text-primary); font-weight: 600; }
+  .clay-table .biz-type-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
+  .clay-table .bin-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; margin-right: 3px; display: inline-block; }
+  .clay-table .bin-y { background: rgba(212,185,74,0.15); color: #d4b94a; border: 1px solid rgba(212,185,74,0.3); }
+  .clay-table .bin-r { background: rgba(224,82,82,0.15); color: #e05252; border: 1px solid rgba(224,82,82,0.3); }
+  .clay-table .bin-g { background: rgba(27,107,58,0.15); color: var(--stirling-pale); border: 1px solid rgba(27,107,58,0.3); }
+  .clay-table .tl-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; }
+  .clay-table .tl-yes { background: rgba(0,180,216,0.12); color: var(--think-blue); border: 1px solid rgba(0,180,216,0.3); }
+  .clay-table .tl-no  { background: rgba(74,106,133,0.1); color: var(--text-muted); border: 1px solid var(--border); }
+  .clay-action-btn { font-size: 10px; padding: 3px 8px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; margin-right: 4px; white-space: nowrap; }
+  .clay-action-btn:hover { border-color: #8b5cf6; color: #c4b5fd; }
+  .clay-action-btn.route { border-color: rgba(27,107,58,0.5); color: var(--stirling-pale); }
+  .clay-action-btn.route:hover { background: rgba(27,107,58,0.15); }
+  .clay-spinner { display: none; text-align: center; padding: 40px; color: var(--text-muted); }
+  .clay-empty { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+  .clay-status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; }
+  .clay-status-prospect { background: rgba(212,185,74,0.12); color: #d4b94a; }
+  .clay-status-active   { background: rgba(61,201,138,0.12); color: var(--success); }
+  .clay-status-new      { background: rgba(139,92,246,0.12);  color: #c4b5fd; }
+  @keyframes clay-spin { to { transform: rotate(360deg); } }
+  .spin { display: inline-block; animation: clay-spin .8s linear infinite; }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .right-panel { width: 240px; }
+    .left-panel { width: 230px; }
+  }
+
+  /* Leaflet overrides */
+  .leaflet-control-zoom { border: 1px solid #c8d8e4 !important; border-radius: 8px !important; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important; }
+  .leaflet-control-zoom a { background: #ffffff !important; color: #1a2535 !important; border-bottom: 1px solid #e0eaf0 !important; font-size: 16px !important; }
+  .leaflet-control-zoom a:hover { background: #f0f7ff !important; color: var(--stirling-green) !important; }
+  .leaflet-tooltip-light { background: #fff !important; border: 1px solid #dce8f0 !important; color: #1a2535 !important; font-size: 12px !important; box-shadow: 0 3px 12px rgba(0,0,0,0.12) !important; border-radius: 6px !important; }
+  .leaflet-tooltip-light::before { border-top-color: #dce8f0 !important; }
+  .leaflet-popup-content-wrapper { background: #ffffff !important; border: 1px solid #dce8f0 !important; color: #1a2535 !important; border-radius: 10px !important; box-shadow: 0 6px 28px rgba(0,0,0,0.18) !important; }
+  .leaflet-popup-tip { background: #ffffff !important; }
+  .leaflet-popup-content { font-size: 12px !important; color: #1a2535 !important; line-height: 1.5 !important; }
+  .leaflet-popup-content b { color: #111e2d; }
+  .leaflet-popup-close-button { color: #666 !important; font-size: 16px !important; }
+
+  .section-icon { font-size: 12px; }
+  .think-tag {
+    background: rgba(0,180,216,0.12); border: 1px solid rgba(0,180,216,0.3);
+    color: var(--think-blue); font-size: 9px; padding: 1px 5px; border-radius: 4px; font-weight: 600;
+  }
+
+  /* Chart bars animation */
+  .animated-bar { animation: growbar 1s ease forwards; transform-origin: left; }
+  @keyframes growbar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+</style>
+</head>
+<body>
+
+<!-- TOP NAVIGATION -->
+<nav class="topnav">
+  <div class="logo-wrap">
+    <div class="logo-icon">S</div>
+    <div>
+      <div class="logo-title">City of Stirling</div>
+      <div class="logo-sub">On-Demand Commercial Waste Collection</div>
+    </div>
+    <span class="live-badge">LIVE</span>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchView('map')">
+      <span class="tab-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      </span>
+      <span class="tab-label">Map View</span>
+    </button>
+    <button class="nav-tab" onclick="switchView('bookings')">
+      <span class="tab-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+      </span>
+      <span class="tab-label">Bookings</span>
+    </button>
+    <button class="nav-tab" onclick="switchView('routes')">
+      <span class="tab-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </span>
+      <span class="tab-label">Routes</span>
+    </button>
+    <button class="nav-tab" onclick="switchView('analytics')">
+      <span class="tab-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+      </span>
+      <span class="tab-label">Analytics</span>
+    </button>
+    <button class="nav-tab clay-tab" onclick="switchView('clay')">
+      <span class="tab-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 19.5 6.5 19.5 17.5 12 22 4.5 17.5 4.5 6.5 12 2"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="4.5" y1="6.5" x2="19.5" y2="6.5"/><line x1="4.5" y1="17.5" x2="19.5" y2="17.5"/></svg>
+      </span>
+      <span class="tab-label">Clay Search</span>
+    </button>
+  </div>
+
+  <div class="nav-right">
+    <div class="api-status-badge">
+      <div class="api-dot"></div>
+      <span style="color:var(--text-secondary);font-size:12px;">CIS API</span>
+      <span style="color:var(--success);font-weight:600;font-size:12px;">Connected</span>
+    </div>
+    <div class="alert-btn" onclick="openModal('alerts')">
+      🔔 Alerts <span class="alert-count">2</span>
+    </div>
+    <button class="settings-btn" onclick="openSettings()" title="Settings &amp; API Integration">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span style="font-size:11px;font-weight:600">Settings</span>
+    </button>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT WRAPPER -->
+<div class="main-wrap">
+
+  <!-- ═══════════════ MAP VIEW ═══════════════ -->
+  <div id="view-map" class="view-panel active map-view-inner">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+
+      <!-- Active Bookings Queue -->
+      <div class="panel-section">
+        <div class="panel-section-title">
+          Active Bookings Queue
+          <span class="section-count">8</span>
+        </div>
+
+        <div class="booking-card today" onclick="focusBooking(-31.886, 115.763, 'BS-2247')">
+          <div class="booking-header">
+            <span class="booking-id">BS-2247</span>
+            <span class="booking-status status-collecting">Collecting</span>
+          </div>
+          <div class="booking-address">14 Hocking St</div>
+          <div class="booking-suburb">Karrinyup, WA 6018</div>
+          <div class="booking-meta">
+            <span class="booking-tag">2x Yellow + 1x Red 240lt</span>
+            <span class="booking-zone-tag zone-west">West</span>
+          </div>
+        </div>
+
+        <div class="booking-card today" onclick="focusBooking(-31.892, 115.801, 'BS-2248')">
+          <div class="booking-header">
+            <span class="booking-id">BS-2248</span>
+            <span class="booking-status status-collecting">Collecting</span>
+          </div>
+          <div class="booking-address">7 Odin Rd</div>
+          <div class="booking-suburb">Innaloo, WA 6018</div>
+          <div class="booking-meta">
+            <span class="booking-tag">3x Yellow 240lt (Recycling)</span>
+            <span class="booking-zone-tag zone-west">West</span>
+          </div>
+        </div>
+
+        <div class="booking-card pending" onclick="focusBooking(-31.877, 115.871, 'BS-2249')">
+          <div class="booking-header">
+            <span class="booking-id">BS-2249</span>
+            <span class="booking-status status-scheduled">Scheduled</span>
+          </div>
+          <div class="booking-address">22 Balcatta Rd</div>
+          <div class="booking-suburb">Balcatta, WA 6021</div>
+          <div class="booking-meta">
+            <span class="booking-tag">4x Red 240lt (General)</span>
+            <span class="booking-zone-tag zone-east">East</span>
+          </div>
+        </div>
+
+        <div class="booking-card pending" onclick="focusBooking(-31.867, 115.851, 'BS-2250')">
+          <div class="booking-header">
+            <span class="booking-id">BS-2250</span>
+            <span class="booking-status status-scheduled">Scheduled</span>
+          </div>
+          <div class="booking-address">5 Tuart Hill Dr</div>
+          <div class="booking-suburb">Tuart Hill, WA 6060</div>
+          <div class="booking-meta">
+            <span class="booking-tag">2x Red + 1x Yellow 240lt</span>
+            <span class="booking-zone-tag zone-east">East</span>
+          </div>
+        </div>
+
+        <div class="booking-card urgent" onclick="focusBooking(-31.901, 115.837, 'BS-2233')">
+          <div class="booking-header">
+            <span class="booking-id">BS-2233</span>
+            <span class="booking-status status-missed">Missed — Recover</span>
+          </div>
+          <div class="booking-address">31 Osborne Pk Rd</div>
+          <div class="booking-suburb">Osborne Park, WA 6017</div>
+          <div class="booking-meta">
+            <span class="booking-tag">2x Yellow + 2x Red 240lt</span>
+            <span class="booking-zone-tag zone-east">East</span>
+          </div>
+        </div>
+
+        <div class="booking-card" onclick="focusBooking(-31.921, 115.777, 'BS-2251')">
+          <div class="booking-header">
+            <span class="booking-id">BS-2251</span>
+            <span class="booking-status status-pending">Pending</span>
+          </div>
+          <div class="booking-address">9 Churchlands Ave</div>
+          <div class="booking-suburb">Churchlands, WA 6018</div>
+          <div class="booking-meta">
+            <span class="booking-tag">3x Red 240lt (General)</span>
+            <span class="booking-zone-tag zone-west">West</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fleet Status -->
+      <div class="panel-section">
+        <div class="panel-section-title">
+          Fleet Status
+          <span class="section-count">4</span>
+        </div>
+
+        <div class="fleet-card">
+          <div class="fleet-header">
+            <span class="fleet-id">🚛 STR-V01</span>
+            <div class="fleet-status-dot dot-active"></div>
+          </div>
+          <div class="fleet-stats">
+            <div class="fleet-stat">Zone: <span>West</span></div>
+            <div class="fleet-stat">Driver: <span>M. Hayes</span></div>
+            <div class="fleet-stat">Collected: <span>6 jobs</span></div>
+            <div class="fleet-stat">ETA next: <span>12 min</span></div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--stirling-green)"></div></div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Capacity: 72%</div>
+        </div>
+
+        <div class="fleet-card">
+          <div class="fleet-header">
+            <span class="fleet-id">🚛 STR-V02</span>
+            <div class="fleet-status-dot dot-active"></div>
+          </div>
+          <div class="fleet-stats">
+            <div class="fleet-stat">Zone: <span>East</span></div>
+            <div class="fleet-stat">Driver: <span>T. Brock</span></div>
+            <div class="fleet-stat">Collected: <span>4 jobs</span></div>
+            <div class="fleet-stat">ETA next: <span>8 min</span></div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--stirling-green)"></div></div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Capacity: 45%</div>
+        </div>
+
+        <div class="fleet-card">
+          <div class="fleet-header">
+            <span class="fleet-id">🚛 STR-V03</span>
+            <div class="fleet-status-dot dot-idle"></div>
+          </div>
+          <div class="fleet-stats">
+            <div class="fleet-stat">Zone: <span>West</span></div>
+            <div class="fleet-stat">Driver: <span>P. Singh</span></div>
+            <div class="fleet-stat">Collected: <span>8 jobs</span></div>
+            <div class="fleet-stat">Status: <span style="color:var(--alert-yellow)">Lunch</span></div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:88%;background:var(--alert-orange)"></div></div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Capacity: 88% — Disposal run soon</div>
+        </div>
+
+        <div class="fleet-card">
+          <div class="fleet-header">
+            <span class="fleet-id">🚛 STR-V04</span>
+            <div class="fleet-status-dot dot-active"></div>
+          </div>
+          <div class="fleet-stats">
+            <div class="fleet-stat">Zone: <span>East</span></div>
+            <div class="fleet-stat">Driver: <span>J. Chu</span></div>
+            <div class="fleet-stat">Collected: <span>3 jobs</span></div>
+            <div class="fleet-stat">ETA next: <span>22 min</span></div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--stirling-green)"></div></div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Capacity: 30%</div>
+        </div>
+      </div>
+
+      <!-- Today's KPIs Live -->
+      <div class="panel-section">
+        <div class="panel-section-title">Today's KPIs — Live</div>
+        <div class="kpi-row">
+          <span class="kpi-label">MS — Missed Services</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="kpi-value kpi-warn">1</span>
+            <span class="kpi-badge kpi-badge-warn">Recovery →</span>
+          </div>
+        </div>
+        <div class="kpi-row">
+          <span class="kpi-label">Service Availability</span>
+          <span class="kpi-value kpi-good">100%</span>
+        </div>
+        <div class="kpi-row">
+          <span class="kpi-label">Collection Rate</span>
+          <span class="kpi-value kpi-good">94.1%</span>
+        </div>
+        <div class="kpi-row">
+          <span class="kpi-label">PA — Vehicles Down</span>
+          <span class="kpi-value kpi-good">0</span>
+        </div>
+        <div class="kpi-row">
+          <span class="kpi-label">RC — Complaints</span>
+          <span class="kpi-value kpi-good">2 → 100%</span>
+        </div>
+        <div class="kpi-row">
+          <span class="kpi-label">Customer Satisfaction</span>
+          <span class="kpi-value kpi-good">87%</span>
+        </div>
+        <div class="kpi-row">
+          <span class="kpi-label">WHS Notices</span>
+          <span class="kpi-value kpi-good">0</span>
+        </div>
+      </div>
+
+    </div><!-- /left-panel -->
+
+    <!-- MAP -->
+    <div class="map-container">
+      <div class="map-controls">
+        <button class="map-btn active" onclick="toggleLayer('zones', this)">🗂 Zones</button>
+        <button class="map-btn active" onclick="toggleLayer('bookings', this)">📍 Bookings</button>
+        <button class="map-btn active" onclick="toggleLayer('vehicles', this)">🚛 Vehicles</button>
+        <button class="map-btn" onclick="toggleLayer('heatmap', this)">🔥 Heatmap</button>
+        <button class="map-btn" onclick="toggleLayer('routes', this)">🛣 Routes</button>
+      </div>
+      <div id="map"></div>
+      <div class="map-legend">
+        <div class="legend-title">Legend</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--stirling-green)"></div> Collecting Now</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--think-blue-dark)"></div> Scheduled Today</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8a6a00"></div> Pending Confirmation</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a03030"></div> Missed — Recovery</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1a3a5c;border:2px solid var(--think-blue)"></div> Collection Vehicle</div>
+        <div class="legend-item"><div class="legend-line" style="background:rgba(0,180,216,0.6)"></div> East Zone</div>
+        <div class="legend-item"><div class="legend-line" style="background:rgba(27,107,58,0.6)"></div> West Zone</div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="panel-section">
+        <div class="panel-section-title">Today at a Glance</div>
+        <div class="stat-row">
+          <div class="stat-half">
+            <div class="stat-title">Collections</div>
+            <div class="stat-big" style="color:var(--success)">21</div>
+            <div class="stat-change change-up">↑ 3 vs yesterday</div>
+          </div>
+          <div class="stat-half">
+            <div class="stat-title">Scheduled</div>
+            <div class="stat-big" style="color:var(--think-blue)">8</div>
+            <div class="stat-change" style="color:var(--text-secondary)">Remaining today</div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-half">
+            <div class="stat-title">Items Collected</div>
+            <div class="stat-big" style="color:var(--stirling-pale)">89</div>
+            <div class="stat-change" style="color:var(--text-secondary)">Yellow ♻ + Red 🗑 bins</div>
+          </div>
+          <div class="stat-half">
+            <div class="stat-title">Avg Sched Time</div>
+            <div class="stat-big" style="color:var(--alert-yellow)">6.2d</div>
+            <div class="stat-change change-up">↓ KPI: 10d max</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Zone Summary</div>
+        <div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:12px;color:var(--think-blue);font-weight:600">⬤ East Zone</span>
+            <span style="font-size:12px;color:var(--text-primary)">11 jobs today</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:11px;color:var(--text-muted)">Suburbs: Balcatta, Tuart Hill, Nollamara, Westminster, Stirling</span>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:12px;color:var(--stirling-pale);font-weight:600">⬤ West Zone</span>
+            <span style="font-size:12px;color:var(--text-primary)">10 jobs today</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:11px;color:var(--text-muted)">Suburbs: Karrinyup, Innaloo, Scarborough, Trigg, Churchlands</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">Service Alerts</div>
+        <div style="background:rgba(224,82,82,0.1);border:1px solid rgba(224,82,82,0.3);border-radius:8px;padding:10px;margin-bottom:8px">
+          <div style="font-size:11px;font-weight:700;color:var(--alert-red);margin-bottom:4px">⚠ Missed Service — BS-2233</div>
+          <div style="font-size:11px;color:var(--text-secondary)">31 Osborne Pk Rd — Recovery assigned to STR-V02. ETA: tomorrow 08:00.</div>
+        </div>
+        <div style="background:rgba(212,185,74,0.1);border:1px solid rgba(212,185,74,0.3);border-radius:8px;padding:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--alert-yellow);margin-bottom:4px">⚠ Capacity Alert — STR-V03</div>
+          <div style="font-size:11px;color:var(--text-secondary)">Vehicle at 88% capacity. Disposal run required before next booking.</div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title"><span class="think-tag">THINK LIDS</span> 240lt Bin Status</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:11px;color:var(--text-secondary)">♻ Yellow (Recycling)</span>
+            <span style="font-size:12px;font-weight:700;color:#d4a800">142 active</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:11px;color:var(--text-secondary)">🗑 Red (General Waste)</span>
+            <span style="font-size:12px;font-weight:700;color:var(--alert-red)">138 active</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:11px;color:var(--text-secondary)">Think Lids Secure</span>
+            <span style="font-size:12px;font-weight:700;color:var(--success)">278 / 280</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:11px;color:var(--text-secondary)">Avg Collection Interval</span>
+            <span style="font-size:12px;font-weight:700;color:var(--stirling-pale)">6.2 days</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">CIS API — Last Sync</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">
+          <span style="color:var(--success)">●</span> Bookings pushed from portal: <strong style="color:var(--text-primary)">3 min ago</strong>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">
+          <span style="color:var(--success)">●</span> Status updates to City: <strong style="color:var(--text-primary)">Real-time</strong>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">
+          <span style="color:var(--success)">●</span> File transfer backup: <strong style="color:var(--text-primary)">06:00 daily</strong>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary)">
+          <span style="color:var(--alert-yellow)">●</span> Next monthly report: <strong style="color:var(--text-primary)">24 Mar 2026</strong>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="privacy-banner">
+          <div class="privacy-title">🔒 Privacy Collection Notice</div>
+          <div class="privacy-text">All resident booking data is collected under the <em>Privacy Act 1988 (Cth)</em> and WA State Records Act. Privacy Notice displayed at booking webform. Data retained per City of Stirling data governance policy.</div>
+        </div>
+      </div>
+    </div><!-- /right-panel -->
+
+  </div><!-- /view-map -->
+
+  <!-- ═══════════════ BOOKINGS VIEW ═══════════════ -->
+  <div id="view-bookings" class="view-panel" style="background:var(--bg-deep)">
+    <div class="view-scroll">
+      <h2 style="font-size:18px;margin-bottom:16px;font-weight:700">Booking Management</h2>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+        <div class="stat-card">
+          <div class="stat-title">Total This Month</div>
+          <div class="stat-big">142</div>
+          <div class="stat-change change-up">↑ 18% vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Within 10-Day KPI</div>
+          <div class="stat-big" style="color:var(--success)">100%</div>
+          <div class="stat-change change-up">Target met ✓</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Avg Booking → Collection</div>
+          <div class="stat-big" style="color:var(--stirling-pale)">6.2 days</div>
+          <div class="stat-change" style="color:var(--text-secondary)">KPI max: 10 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Recovery Rate</div>
+          <div class="stat-big" style="color:var(--success)">100%</div>
+          <div class="stat-change change-up">Next-day recovery ✓</div>
+        </div>
+      </div>
+      <div class="table-container">
+        <div class="table-header">
+          <span class="table-title">All Bookings — March 2026</span>
+          <input class="table-search" type="text" placeholder="🔍  Search address or ID…" oninput="filterTable(this.value)">
+        </div>
+        <table id="bookings-table">
+          <thead>
+            <tr>
+              <th>Booking ID</th><th>Resident Address</th><th>Suburb</th><th>Zone</th>
+              <th>Bins (Y=Recycling / R=General)</th><th>Booked</th><th>Scheduled</th><th>Status</th><th>Driver</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ ROUTES VIEW ═══════════════ -->
+  <div id="view-routes" class="view-panel" style="background:var(--bg-deep)">
+    <div class="view-scroll">
+      <h2 style="font-size:18px;margin-bottom:16px;font-weight:700">Route Management</h2>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--stirling-pale)">🚛 STR-V01 — West Zone Route</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Driver: M. Hayes | 6 complete · 3 remaining</div>
+          <div id="route-v01"></div>
+        </div>
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--think-blue)">🚛 STR-V02 — East Zone Route</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Driver: T. Brock | 4 complete · 5 remaining</div>
+          <div id="route-v02"></div>
+        </div>
+      </div>
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px">Route Optimisation — CIS Integration</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Algorithm</div>
+            <div style="font-size:14px;font-weight:700">TSP + Geo-cluster</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:4px">Bin collection points geocoded via CIS address + asset database</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Data Source</div>
+            <div style="font-size:14px;font-weight:700">CIS Portal API</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:4px">Bookings ingested nightly + real-time via webhook</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Route Efficiency</div>
+            <div style="font-size:14px;font-weight:700;color:var(--success)">91.3%</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:4px">↑ 4.2% vs manual routing</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ ANALYTICS VIEW ═══════════════ -->
+  <div id="view-analytics" class="view-panel" style="background:var(--bg-deep)">
+    <div class="view-scroll">
+      <h2 style="font-size:18px;margin-bottom:16px;font-weight:700">Performance Analytics</h2>
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <div class="analytics-card-title">Total Collections FY26</div>
+          <div class="analytics-big" style="color:var(--stirling-pale)">3,812</div>
+          <div class="analytics-sub">Collection jobs since Jul 2025</div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-title">Customer Satisfaction</div>
+          <div class="analytics-big" style="color:var(--success)">87%</div>
+          <div class="analytics-sub">KPI target: 80% ✓</div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-title">Avg Bins per Job</div>
+          <div class="analytics-big" style="color:var(--think-blue)">2.24</div>
+          <div class="analytics-sub">Yellow ♻ (recycling) &amp; Red 🗑 (general) 240lt</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Collections by Suburb -->
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">Collections by Suburb — FY26</div>
+          <div class="bar-chart" id="suburb-chart"></div>
+        </div>
+
+        <!-- KPI Scorecard -->
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:16px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px">KPI Scorecard — Current Period</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:7px 8px;font-size:10px;color:var(--text-muted);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:1px">KPI</th>
+                <th style="text-align:center;padding:7px 8px;font-size:10px;color:var(--text-muted);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:1px">Target</th>
+                <th style="text-align:center;padding:7px 8px;font-size:10px;color:var(--text-muted);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:1px">Actual</th>
+                <th style="text-align:center;padding:7px 8px;font-size:10px;color:var(--text-muted);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:1px">Status</th>
+              </tr>
+            </thead>
+            <tbody id="kpi-scorecard"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Monthly trend -->
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px">Monthly Collection Volume — FY26</div>
+        <div id="monthly-chart" style="display:flex;align-items:flex-end;gap:8px;height:100px;padding:0 8px"></div>
+        <div id="monthly-labels" style="display:flex;gap:8px;padding:6px 8px 0"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ API INTEGRATION VIEW ═══════════════ -->
+  <div id="view-api" class="view-panel" style="background:var(--bg-deep)">
+    <div class="view-scroll">
+      <h2 style="font-size:18px;margin-bottom:4px;font-weight:700">CIS API Integration</h2>
+      <p style="font-size:12px;color:var(--text-secondary);margin-bottom:20px">City of Stirling Corporate Information Services Platform — RESTful API Integration</p>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+        <div style="background:var(--bg-panel);border:1px solid var(--success);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;margin-bottom:6px">🔗</div>
+          <div style="font-size:14px;font-weight:700;color:var(--success)">Connected</div>
+          <div style="font-size:11px;color:var(--text-muted)">CIS Platform</div>
+        </div>
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;margin-bottom:6px">🔐</div>
+          <div style="font-size:14px;font-weight:700;color:var(--think-blue)">OAuth 2.0</div>
+          <div style="font-size:11px;color:var(--text-muted)">JWT + Bearer</div>
+        </div>
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;margin-bottom:6px">📄</div>
+          <div style="font-size:14px;font-weight:700;color:var(--alert-yellow)">v1.3.2</div>
+          <div style="font-size:11px;color:var(--text-muted)">API Version</div>
+        </div>
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:24px;margin-bottom:6px">⚡</div>
+          <div style="font-size:14px;font-weight:700;color:var(--success)">99.97%</div>
+          <div style="font-size:11px;color:var(--text-muted)">Uptime (30d)</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+        <!-- Endpoints -->
+        <div class="api-card" style="background:var(--bg-panel)">
+          <div class="api-title">🔌 RESTful API Endpoints</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;font-family:monospace">Base: https://api.stirling.wa.gov.au/cis/v1/waste</div>
+
+          <div class="api-endpoint">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-path">/bookings</span>
+            <span class="endpoint-status">● 200</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;margin-left:4px">Fetch all pending resident bookings from portal</div>
+
+          <div class="api-endpoint">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-path">/bookings/{id}</span>
+            <span class="endpoint-status">● 200</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;margin-left:4px">Get single booking detail by ID</div>
+
+          <div class="api-endpoint">
+            <span class="endpoint-method method-post">POST</span>
+            <span class="endpoint-path">/bookings/{id}/status</span>
+            <span class="endpoint-status">● 201</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;margin-left:4px">Push collection status update to City (collected/missed/rescheduled)</div>
+
+          <div class="api-endpoint">
+            <span class="endpoint-method method-post">POST</span>
+            <span class="endpoint-path">/collections/complete</span>
+            <span class="endpoint-status">● 201</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;margin-left:4px">Submit completed collection record with timestamp and items</div>
+
+          <div class="api-endpoint">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-path">/residents/{id}/allowance</span>
+            <span class="endpoint-status">● 200</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;margin-left:4px">Check resident's annual allowance utilisation</div>
+
+          <div class="api-endpoint">
+            <span class="endpoint-method method-post">POST</span>
+            <span class="endpoint-path">/reports/monthly</span>
+            <span class="endpoint-status">● 202</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;margin-left:4px">Submit pre-approved monthly report (JSON/CSV)</div>
+
+          <div class="api-endpoint">
+            <span class="endpoint-method method-put">PUT</span>
+            <span class="endpoint-path">/bookings/{id}/reschedule</span>
+            <span class="endpoint-status">● 200</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;margin-left:4px">Reschedule missed collection; triggers resident notification</div>
+
+          <div class="api-endpoint">
+            <span class="endpoint-method method-get">GET</span>
+            <span class="endpoint-path">/zones/{zone}/schedule</span>
+            <span class="endpoint-status">● 200</span>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-left:4px">Get all upcoming bookings for East or West zone</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <!-- Auth -->
+          <div class="api-card" style="background:var(--bg-panel)">
+            <div class="api-title">🔐 Security &amp; Authentication</div>
+            <div class="api-auth-row"><span class="auth-label">Protocol</span><span class="auth-value">OAuth 2.0 / OIDC</span></div>
+            <div class="api-auth-row"><span class="auth-label">Token Type</span><span class="auth-value">JWT Bearer (RS256)</span></div>
+            <div class="api-auth-row"><span class="auth-label">Token Expiry</span><span class="auth-value">3600s + refresh</span></div>
+            <div class="api-auth-row"><span class="auth-label">Transport</span><span class="auth-value">TLS 1.3 (HTTPS only)</span></div>
+            <div class="api-auth-row"><span class="auth-label">API Key Rotation</span><span class="auth-value">90-day cycle</span></div>
+            <div class="api-auth-row"><span class="auth-label">IP Allowlist</span><span class="auth-value">Contractor CIDR</span></div>
+            <div class="api-auth-row"><span class="auth-label">Rate Limit</span><span class="auth-value">1000 req/hr</span></div>
+            <div class="api-auth-row"><span class="auth-label">Privacy Scope</span><span class="auth-value">read:bookings write:status</span></div>
+          </div>
+
+          <!-- Data Formats -->
+          <div class="api-card" style="background:var(--bg-panel)">
+            <div class="api-title">📦 Data Formats</div>
+            <div class="api-auth-row"><span class="auth-label">Primary Format</span><span class="auth-value">JSON (UTF-8)</span></div>
+            <div class="api-auth-row"><span class="auth-label">Backup Transfer</span><span class="auth-value">SFTP / CSV (daily)</span></div>
+            <div class="api-auth-row"><span class="auth-label">Date Format</span><span class="auth-value">ISO 8601</span></div>
+            <div class="api-auth-row"><span class="auth-label">Addresses</span><span class="auth-value">GNAF standard (G-NAF)</span></div>
+            <div class="api-auth-row"><span class="auth-label">Versioning</span><span class="auth-value">/v1/ in path + header</span></div>
+            <div class="api-auth-row"><span class="auth-label">Pagination</span><span class="auth-value">cursor-based</span></div>
+          </div>
+
+          <!-- Error Handling -->
+          <div class="api-card" style="background:var(--bg-panel)">
+            <div class="api-title">⚠️ Error Handling</div>
+            <div class="api-auth-row">
+              <span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:10px">400</code> Bad Request</span>
+              <span class="auth-value" style="color:var(--alert-orange)">Validation error</span>
+            </div>
+            <div class="api-auth-row">
+              <span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:10px">401</code> Unauthorized</span>
+              <span class="auth-value" style="color:var(--alert-orange)">Re-authenticate</span>
+            </div>
+            <div class="api-auth-row">
+              <span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:10px">404</code> Not Found</span>
+              <span class="auth-value" style="color:var(--alert-orange)">Booking not found</span>
+            </div>
+            <div class="api-auth-row">
+              <span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:10px">429</code> Rate Limited</span>
+              <span class="auth-value" style="color:var(--alert-red)">Backoff + retry</span>
+            </div>
+            <div class="api-auth-row">
+              <span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:10px">500</code> Server Error</span>
+              <span class="auth-value" style="color:var(--alert-red)">Fallback to SFTP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JSON sample -->
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px">📄 Sample Booking Payload — GET /bookings</div>
+        <pre style="background:#0a1520;border:1px solid var(--border);border-radius:8px;padding:14px;font-size:11px;color:#7fd4e0;overflow-x:auto;line-height:1.6">{
+  "bookingId": "BS-2249",
+  "version": "1.3.2",
+  "timestamp": "2026-03-07T09:14:32+08:00",
+  "resident": {
+    "id": "R-98432",
+    "address": "22 Balcatta Rd",
+    "suburb": "Balcatta",
+    "postcode": "6021",
+    "zone": "EAST",
+    "privacyConsentRef": "PC-20260307-98432"
+  },
+  "service": {
+    "type": "COMMERCIAL_WASTE_COLLECTION",
+    "items": [
+      { "itemType": "YELLOW_RECYCLING_240LT", "binType": "YELLOW_240LT", "colour": "Yellow", "stream": "Recycling" }
+    ],
+    "binType": "240LT_THINK_LID", "binColour": "YELLOW", "wasteStream": "RECYCLING",
+    "requestedDate": "2026-03-07",
+    "scheduledDate": "2026-03-11",
+    "schedulingDays": 4,
+    "kpiCompliant": true
+  },
+  "status": "SCHEDULED",
+  "contractorRef": "STR-V02",
+  "_links": {
+    "self": "/cis/v1/waste/bookings/BS-2249",
+    "status": "/cis/v1/waste/bookings/BS-2249/status",
+    "resident": "/cis/v1/waste/residents/R-98432"
+  }
+}</pre>
+      </div>
+
+      <!-- File-based fallback -->
+      <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:16px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px">📁 Secure File-Based Fallback (SFTP)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">City → Contractor</div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px">Daily Booking Export</div>
+            <div style="font-size:11px;color:var(--text-secondary)">bookings_YYYYMMDD.csv<br>Delivered by 05:00 AWST via SFTP</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Contractor → City</div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px">Daily Status Report</div>
+            <div style="font-size:11px;color:var(--text-secondary)">status_YYYYMMDD.csv<br>Submitted by 20:00 AWST</div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Monthly</div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px">Performance Report</div>
+            <div style="font-size:11px;color:var(--text-secondary)">report_YYYY_MM.pdf/.xlsx<br>Pre-approved format, by 5th of month</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /view-api -->
+
+  <!-- ═══════════════ CLAY SEARCH TAB ═══════════════ -->
+  <div id="view-clay" class="view-panel" style="background:var(--bg-deep)">
+    <div class="clay-wrap">
+
+      <!-- ── LEFT SIDEBAR ── -->
+      <div class="clay-sidebar">
+
+        <!-- API Config -->
+        <div class="clay-api-box">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">
+            <div style="width:24px;height:24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px">🔷</div>
+            <span style="font-weight:700;font-size:13px;color:var(--text-primary)">Clay API</span>
+          </div>
+          <div class="clay-section-title" style="margin-bottom:4px">API Key</div>
+          <input type="password" id="clay-api-key" placeholder="clay_api_key_••••••••••" autocomplete="off"/>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:5px">
+            Get your key at <a href="https://app.clay.com/settings/api" target="_blank" style="color:#8b5cf6;text-decoration:none">app.clay.com → Settings → API</a>
+          </div>
+          <div style="margin-top:10px">
+            <div class="clay-section-title" style="margin-bottom:5px">Mode</div>
+            <div class="clay-mode-toggle">
+              <button class="clay-mode-btn active" id="clay-mode-demo" onclick="setClayMode('demo')">🎭 Demo</button>
+              <button class="clay-mode-btn" id="clay-mode-live" onclick="setClayMode('live')">⚡ Live</button>
+            </div>
+          </div>
+          <div id="clay-live-note" style="display:none;font-size:10px;color:var(--text-muted);margin-top:6px;line-height:1.4">
+            Live mode calls <code style="font-size:9px;color:#8b5cf6">POST /v1/sources/google-maps-places</code> per suburb. Consumes Clay credits.
+          </div>
+        </div>
+
+        <!-- Suburb Selector -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+            <div class="clay-section-title" style="margin:0">Suburbs</div>
+            <div style="display:flex;gap:6px">
+              <span style="font-size:10px;color:#8b5cf6;cursor:pointer" onclick="selectAllSuburbs(true)">All</span>
+              <span style="font-size:10px;color:var(--text-muted);cursor:pointer" onclick="selectAllSuburbs(false)">None</span>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--think-blue);font-weight:600;margin-bottom:5px;padding:3px 7px;background:rgba(0,180,216,0.08);border-radius:4px;border-left:2px solid var(--think-blue)">WEST ZONE</div>
+          <div class="suburb-grid" style="margin-bottom:8px">
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Karrinyup" checked> Karrinyup</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Scarborough" checked> Scarborough</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Innaloo" checked> Innaloo</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Churchlands"> Churchlands</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Doubleview"> Doubleview</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Gwelup"> Gwelup</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="City Beach"> City Beach</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Floreat"> Floreat</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Wembley" checked> Wembley</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Hamersley"> Hamersley</label>
+          </div>
+          <div style="font-size:10px;color:var(--stirling-pale);font-weight:600;margin-bottom:5px;padding:3px 7px;background:rgba(27,107,58,0.08);border-radius:4px;border-left:2px solid var(--stirling-green)">EAST ZONE</div>
+          <div class="suburb-grid">
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Balcatta" checked> Balcatta</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Stirling"> Stirling</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Osborne Park" checked> Osborne Pk</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Mt Hawthorn"> Mt Hawthorn</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Tuart Hill"> Tuart Hill</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Yokine"> Yokine</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Dianella"> Dianella</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Joondanna"> Joondanna</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Nollamara"> Nollamara</label>
+            <label class="suburb-cb"><input type="checkbox" class="suburb-check" value="Westminster"> Westminster</label>
+          </div>
+        </div>
+
+        <!-- Business Type -->
+        <div>
+          <div class="clay-section-title">Business Type</div>
+          <div class="biz-type-grid">
+            <div class="biz-type-pill active" onclick="toggleBizType(this,'retail')">🛍 Retail</div>
+            <div class="biz-type-pill active" onclick="toggleBizType(this,'food')">🍽 Food & Bev</div>
+            <div class="biz-type-pill active" onclick="toggleBizType(this,'office')">🏢 Office</div>
+            <div class="biz-type-pill active" onclick="toggleBizType(this,'medical')">🏥 Medical</div>
+            <div class="biz-type-pill" onclick="toggleBizType(this,'auto')">🔧 Automotive</div>
+            <div class="biz-type-pill" onclick="toggleBizType(this,'industrial')">🏭 Industrial</div>
+            <div class="biz-type-pill" onclick="toggleBizType(this,'sport')">⚽ Sports/Rec</div>
+            <div class="biz-type-pill" onclick="toggleBizType(this,'hospitality')">🏨 Hospitality</div>
+          </div>
+        </div>
+
+        <!-- Bin Filter -->
+        <div>
+          <div class="clay-section-title">Bin Configuration</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <label style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:7px;cursor:pointer">
+              <input type="checkbox" id="clay-bin-yellow" checked style="accent-color:#d4b94a"> Yellow 240/360L Recycling
+            </label>
+            <label style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:7px;cursor:pointer">
+              <input type="checkbox" id="clay-bin-red" checked style="accent-color:#e05252"> Red 240L General Waste
+            </label>
+            <label style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:7px;cursor:pointer">
+              <input type="checkbox" id="clay-bin-fw" style="accent-color:#4ab870"> Four-wheeled 660L / 1100L
+            </label>
+            <label style="font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:7px;cursor:pointer">
+              <input type="checkbox" id="clay-think-lid" checked style="accent-color:#00b4d8"> Think Lid registered only
+            </label>
+          </div>
+        </div>
+
+        <!-- Search Button -->
+        <button class="clay-search-btn" id="clay-search-btn" onclick="runClaySearch()">
+          🔍 Search Businesses
+        </button>
+
+        <!-- Stats summary (shown after search) -->
+        <div id="clay-stats-box" style="display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px">
+          <div class="clay-section-title" style="margin-bottom:8px">Last Search</div>
+          <div id="clay-stats-content" style="font-size:11px;color:var(--text-secondary);line-height:1.8"></div>
+        </div>
+
+      </div><!-- /clay-sidebar -->
+
+      <!-- ── MAIN RESULTS PANEL ── -->
+      <div class="clay-main">
+
+        <!-- Header -->
+        <div class="clay-results-header">
+          <div>
+            <div style="font-size:16px;font-weight:800;color:var(--text-primary)">Business Prospect Search</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Find commercial waste collection prospects across City of Stirling suburbs</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div id="clay-count-badge" class="clay-count-badge" style="display:none">0 results</div>
+            <button class="clay-export-btn" onclick="exportClayCSV()" id="clay-export-btn" style="display:none">⬇ Export CSV</button>
+            <button class="clay-export-btn" onclick="enrichSelected()" id="clay-enrich-btn" style="display:none;border-color:rgba(139,92,246,0.5);color:#c4b5fd">✨ Enrich Selected</button>
+          </div>
+        </div>
+
+        <!-- Spinner -->
+        <div class="clay-spinner" id="clay-spinner">
+          <div style="font-size:28px;margin-bottom:10px"><span class="spin">⟳</span></div>
+          <div id="clay-spinner-msg" style="color:var(--text-muted);font-size:13px">Searching suburbs via Clay…</div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="clay-empty" id="clay-empty">
+          <div style="font-size:40px;margin-bottom:12px">🔷</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">Ready to search</div>
+          <div style="font-size:12px;color:var(--text-muted);max-width:300px;margin:0 auto;line-height:1.6">
+            Select suburbs and business types, then click <b style="color:#c4b5fd">Search Businesses</b>.<br>
+            Use <b style="color:#c4b5fd">Demo mode</b> to preview results without an API key.
+          </div>
+        </div>
+
+        <!-- Results Table -->
+        <div id="clay-results" style="display:none;overflow-x:auto;border:1px solid var(--border);border-radius:10px">
+          <table class="clay-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="clay-check-all" onclick="toggleAllRows(this)" style="accent-color:#8b5cf6"></th>
+                <th>Business</th>
+                <th>Suburb</th>
+                <th>Type</th>
+                <th>Bin Config</th>
+                <th>Think Lid</th>
+                <th>Contact</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="clay-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Clay attribution -->
+        <div id="clay-attribution" style="display:none;font-size:10px;color:var(--text-muted);text-align:right;margin-top:4px">
+          Data enriched via <a href="https://clay.com" target="_blank" style="color:#8b5cf6;text-decoration:none">Clay</a> · City of Stirling suburbs · Last updated <span id="clay-last-update"></span>
+        </div>
+
+      </div><!-- /clay-main -->
+    </div><!-- /clay-wrap -->
+  </div><!-- /view-clay -->
+
+</div><!-- /main-wrap -->
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="bottom-stat">
+    <div class="bottom-stat-icon">🏠</div>
+    <div>
+      <div class="bottom-stat-label">Collections Today</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="bottom-stat-value">21</span>
+        <span class="bottom-stat-change change-up">↑ 3</span>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-stat">
+    <div class="bottom-stat-icon">🚛</div>
+    <div>
+      <div class="bottom-stat-label">Active Vehicles</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="bottom-stat-value">4</span>
+        <span style="font-size:11px;color:var(--success)">3 active · 1 idle</span>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-stat">
+    <div class="bottom-stat-icon">⏱</div>
+    <div>
+      <div class="bottom-stat-label">Avg Schedule Time</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="bottom-stat-value" style="color:var(--success)">6.2d</span>
+        <span style="font-size:11px;color:var(--text-muted)">KPI: ≤10d</span>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-stat">
+    <div class="bottom-stat-icon">📍</div>
+    <div>
+      <div class="bottom-stat-label">Pending Bookings</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="bottom-stat-value" style="color:var(--think-blue)">8</span>
+        <span style="font-size:11px;color:var(--text-secondary)">within KPI window</span>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-stat">
+    <div class="bottom-stat-icon">⚠️</div>
+    <div>
+      <div class="bottom-stat-label">Missed — Recovery</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="bottom-stat-value" style="color:var(--alert-red)">1</span>
+        <span style="font-size:11px;color:var(--alert-orange)">STR-V02 assigned</span>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-stat">
+    <div class="bottom-stat-icon">😊</div>
+    <div>
+      <div class="bottom-stat-label">Satisfaction</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="bottom-stat-value" style="color:var(--success)">87%</span>
+        <span style="font-size:11px;color:var(--text-muted)">KPI: ≥80%</span>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-stat">
+    <div class="bottom-stat-icon">🔗</div>
+    <div>
+      <div class="bottom-stat-label">CIS API Status</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="bottom-stat-value" style="color:var(--success);font-size:13px">Online</span>
+        <span style="font-size:11px;color:var(--text-muted)">99.97% uptime</span>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-stat">
+    <div class="bottom-stat-icon">📅</div>
+    <div>
+      <div class="bottom-stat-label">Contract Start</div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <span class="bottom-stat-value" style="font-size:13px">1 Jul 2026</span>
+        <span style="font-size:11px;color:var(--text-muted)">116d away</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modal-title">Booking Detail</div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ──────────────────────────────────────
+// DATA
+// ──────────────────────────────────────
+const bookingsData = [
+  { id:'BS-2247', address:'14 Hocking St', suburb:'Karrinyup', postcode:'6018', zone:'West', items:'2x Yellow + 1x Red 240lt', booked:'4 Mar 2026', scheduled:'7 Mar 2026', status:'Collecting', driver:'M. Hayes' },
+  { id:'BS-2248', address:'7 Odin Rd', suburb:'Innaloo', postcode:'6018', zone:'West', items:'3x Yellow 240lt (Recycling)', booked:'4 Mar 2026', scheduled:'7 Mar 2026', status:'Collecting', driver:'M. Hayes' },
+  { id:'BS-2249', address:'22 Balcatta Rd', suburb:'Balcatta', postcode:'6021', zone:'East', items:'4x Red 240lt (General)', booked:'5 Mar 2026', scheduled:'11 Mar 2026', status:'Scheduled', driver:'T. Brock' },
+  { id:'BS-2250', address:'5 Tuart Hill Dr', suburb:'Tuart Hill', postcode:'6060', zone:'East', items:'2x Red + 1x Yellow 240lt', booked:'5 Mar 2026', scheduled:'12 Mar 2026', status:'Scheduled', driver:'J. Chu' },
+  { id:'BS-2233', address:'31 Osborne Park Rd', suburb:'Osborne Park', postcode:'6017', zone:'East', items:'2x Yellow + 2x Red 240lt', booked:'1 Mar 2026', scheduled:'6 Mar 2026', status:'Missed', driver:'T. Brock' },
+  { id:'BS-2251', address:'9 Churchlands Ave', suburb:'Churchlands', postcode:'6018', zone:'West', items:'3x Red 240lt (General)', booked:'5 Mar 2026', scheduled:'13 Mar 2026', status:'Pending', driver:'P. Singh' },
+  { id:'BS-2244', address:'88 Scarborough Beach Rd', suburb:'Scarborough', postcode:'6019', zone:'West', items:'2x Red + 1x Yellow 240lt', booked:'3 Mar 2026', scheduled:'6 Mar 2026', status:'Collected', driver:'P. Singh' },
+  { id:'BS-2245', address:'12 Hamersley Rd', suburb:'Hamersley', postcode:'6022', zone:'East', items:'1x Yellow + 1x Red 240lt', booked:'3 Mar 2026', scheduled:'6 Mar 2026', status:'Collected', driver:'J. Chu' },
+  { id:'BS-2240', address:'3 Westminster St', suburb:'Westminster', postcode:'6061', zone:'East', items:'4x Yellow 240lt (Recycling)', booked:'2 Mar 2026', scheduled:'5 Mar 2026', status:'Collected', driver:'T. Brock' },
+  { id:'BS-2241', address:'27 Trigg Rd', suburb:'Trigg', postcode:'6029', zone:'West', items:'3x Red + 1x Yellow 240lt', booked:'2 Mar 2026', scheduled:'5 Mar 2026', status:'Collected', driver:'M. Hayes' },
+  { id:'BS-2238', address:'14 Nollamara Ave', suburb:'Nollamara', postcode:'6061', zone:'East', items:'2x Red + 1x Yellow 240lt', booked:'1 Mar 2026', scheduled:'4 Mar 2026', status:'Collected', driver:'J. Chu' },
+  { id:'BS-2239', address:'6 Yokine Rd', suburb:'Yokine', postcode:'6060', zone:'East', items:'2x Yellow 240lt', booked:'1 Mar 2026', scheduled:'4 Mar 2026', status:'Collected', driver:'T. Brock' },
+];
+
+const suburbData = [
+  { name:'Balcatta', count:28, zone:'East' }, { name:'Karrinyup', count:24, zone:'West' },
+  { name:'Innaloo', count:21, zone:'West' }, { name:'Scarborough', count:19, zone:'West' },
+  { name:'Osborne Park', count:18, zone:'East' }, { name:'Tuart Hill', count:16, zone:'East' },
+  { name:'Churchlands', count:14, zone:'West' }, { name:'Westminster', count:13, zone:'East' },
+  { name:'Yokine', count:12, zone:'East' }, { name:'Nollamara', count:11, zone:'East' },
+];
+
+const monthlyData = [
+  { month:'Jul', val:72 }, { month:'Aug', val:89 }, { month:'Sep', val:95 },
+  { month:'Oct', val:108 }, { month:'Nov', val:114 }, { month:'Dec', val:98 },
+  { month:'Jan', val:121 }, { month:'Feb', val:135 }, { month:'Mar', val:47 },
+];
+
+const kpiData = [
+  { name:'MS — Missed Services', target:'0 / day', actual:'1 today', ok:false },
+  { name:'Service Availability', target:'100% ≤ 10 days', actual:'100%', ok:true },
+  { name:'Collection Rate', target:'100%', actual:'94.1%', ok:false },
+  { name:'PA — Vehicles Down', target:'0 / day', actual:'0', ok:true },
+  { name:'RC — Complaint Response', target:'100% in 2 days', actual:'100%', ok:true },
+  { name:'S — Satisfaction', target:'≥ 80%', actual:'87%', ok:true },
+  { name:'WHS Notices', target:'0 / week', actual:'0', ok:true },
+  { name:'Missed Recovery', target:'100% next-day', actual:'100%', ok:true },
+];
+
+// ──────────────────────────────────────
+// VIEW SWITCHING
+// ──────────────────────────────────────
+function switchView(view) {
+  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  // api tab is hidden from nav (accessed via Settings drawer instead)
+  const navViews = ['map','bookings','routes','analytics','clay'];
+  const idx = navViews.indexOf(view);
+  if (idx >= 0) document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+  if (view === 'analytics') renderAnalytics();
+  if (view === 'bookings') renderBookings();
+  if (view === 'routes') renderRoutes();
+  if (view === 'map') requestAnimationFrame(() => sizeMap());
+}
+
+// ──────────────────────────────────────
+// MAP INIT
+// ──────────────────────────────────────
+let map, layers = { zones: true, bookings: true, vehicles: true, heatmap: false, routes: false };
+let zoneLayer, bookingLayer, vehicleLayer, routeLayer;
+
+// ── POPUP TABS ───────────────────────────────────────────────────────────────
+// Switches between the Job Details tab (1) and Bin Specs tab (2) inside any
+// Leaflet popup.  uid is the sanitised booking/vehicle id used as element suffix.
+function popupTab(uid, tab) {
+  const t1 = document.getElementById('ptab1-' + uid);
+  const t2 = document.getElementById('ptab2-' + uid);
+  const b1 = document.getElementById('pbtn1-' + uid);
+  const b2 = document.getElementById('pbtn2-' + uid);
+  if (!t1) return;
+  t1.style.display = tab === 1 ? 'block' : 'none';
+  t2.style.display = tab === 2 ? 'block' : 'none';
+  const activeStyle  = 'border-bottom:2px solid #1B6B3A;color:#1B6B3A;font-weight:700;';
+  const inactiveStyle = 'border-bottom:2px solid transparent;color:#888;font-weight:400;';
+  b1.style.cssText = b1.style.cssText.replace(/border-bottom:[^;]+;|color:[^;]+;|font-weight:[^;]+;/g,'') + (tab === 1 ? activeStyle : inactiveStyle);
+  b2.style.cssText = b2.style.cssText.replace(/border-bottom:[^;]+;|color:[^;]+;|font-weight:[^;]+;/g,'') + (tab === 2 ? activeStyle : inactiveStyle);
+}
+
+// ── SHARED BIN SPECS TAB CONTENT ─────────────────────────────────────────────
+const BIN_SPECS_HTML = `
+<div style="font-family:system-ui,sans-serif;font-size:10px;color:#222">
+
+  <!-- Four-wheeled bins -->
+  <div style="font-weight:800;color:#1B6B3A;font-size:11px;letter-spacing:.3px;margin-bottom:2px">🟢 FOUR WHEELED — REAR LIFT</div>
+  <div style="color:#555;margin-bottom:3px;line-height:1.4">660L &amp; 1100L · No verge presentation required<br>
+    Streams: General Waste · Recycling · Cardboard · Containers for Change</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px">
+    <div style="background:#f0f7f3;border:1px solid #b8ddc8;border-radius:6px;padding:6px">
+      <div style="font-weight:800;color:#1B6B3A;font-size:10px;margin-bottom:3px">660 L</div>
+      <div style="line-height:1.7;color:#333">
+        L 700 · W 1200mm<br>H 1.2 m<br>Load ht 1.11 m<br>
+        <span style="background:#d4edda;color:#1B6B3A;border-radius:3px;padding:1px 4px;font-weight:700">≈ 2.75 × 240L</span>
+      </div>
+    </div>
+    <div style="background:#f0f7f3;border:1px solid #b8ddc8;border-radius:6px;padding:6px">
+      <div style="font-weight:800;color:#1B6B3A;font-size:10px;margin-bottom:3px">1100 L</div>
+      <div style="line-height:1.7;color:#333">
+        L 1000 · W 1200mm<br>H 1.3 m<br>Load ht 1.18 m<br>
+        <span style="background:#d4edda;color:#1B6B3A;border-radius:3px;padding:1px 4px;font-weight:700">≈ 4.5 × 240L</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Yellow recycling wheelie -->
+  <div style="font-weight:800;color:#b78b00;font-size:11px;letter-spacing:.3px;margin-bottom:2px">🟡 YELLOW 240 / 360 L — RECYCLING</div>
+  <div style="color:#555;margin-bottom:3px">Co-mingled recycling · Commercial premises (upon application)</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px">
+    <div style="background:#fffbee;border:1px solid #f0d888;border-radius:6px;padding:6px">
+      <div style="font-weight:800;color:#b78b00;font-size:10px;margin-bottom:3px">240 L</div>
+      <div style="line-height:1.7;color:#333">D 730 · W 675mm<br>H 1080mm</div>
+    </div>
+    <div style="background:#fffbee;border:1px solid #f0d888;border-radius:6px;padding:6px">
+      <div style="font-weight:800;color:#b78b00;font-size:10px;margin-bottom:3px">360 L</div>
+      <div style="line-height:1.7;color:#333">D 904 · W 699mm<br>H 1116mm</div>
+    </div>
+  </div>
+
+  <!-- Red general waste -->
+  <div style="font-weight:800;color:#c0392b;font-size:11px;letter-spacing:.3px;margin-bottom:2px">🔴 RED 240 L — GENERAL WASTE</div>
+  <div style="color:#555;margin-bottom:3px">General waste · Commercial premises (upon application)</div>
+  <div style="background:#fff5f5;border:1px solid #f0b8b8;border-radius:6px;padding:6px">
+    <div style="line-height:1.7;color:#333">D 730 · W 675mm · H 1080mm</div>
+  </div>
+
+</div>`;
+
+function initMap() {
+  map = L.map('map', { zoomControl: true, attributionControl: false }).setView([-31.895, 115.82], 13);
+
+  // Dark-ish tile layer
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19, attribution: '© OpenStreetMap © CARTO'
+  }).addTo(map);
+
+  L.control.attribution({ prefix: false }).addTo(map);
+
+  drawZones();
+  drawBookings();
+  drawVehicles();
+}
+
+function makeIcon(emoji, cls) {
+  return L.divIcon({
+    html: `<div class="custom-marker ${cls}" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.25)">${emoji}</div>`,
+    className: '', iconSize: [36, 36], iconAnchor: [18, 18], popupAnchor: [0, -20]
+  });
+}
+
+function drawZones() {
+  zoneLayer = L.layerGroup();
+  // West Zone (rough polygon covering Karrinyup, Scarborough, Innaloo, Churchlands)
+  const west = L.polygon([
+    [-31.85, 115.74], [-31.85, 115.825], [-31.935, 115.825],
+    [-31.935, 115.74]
+  ], {
+    color: '#1B6B3A', fillColor: '#2d9254',
+    weight: 2.5, dashArray: '8,5', fillOpacity: 0.10, opacity: 0.75
+  }).bindTooltip('<strong style="color:#1B6B3A">West Zone</strong><br>Karrinyup · Innaloo · Scarborough · Trigg · Churchlands · Wembley Downs', { sticky: true, className: 'leaflet-tooltip-light' });
+
+  // East Zone (Balcatta, Tuart Hill, Westminster, Nollamara, Yokine, Osborne Park)
+  const east = L.polygon([
+    [-31.84, 115.825], [-31.84, 115.91], [-31.935, 115.91],
+    [-31.935, 115.825]
+  ], {
+    color: '#0077a8', fillColor: '#00b4d8',
+    weight: 2.5, dashArray: '8,5', fillOpacity: 0.09, opacity: 0.75
+  }).bindTooltip('<strong style="color:#0077a8">East Zone</strong><br>Balcatta · Tuart Hill · Westminster · Nollamara · Yokine · Osborne Park', { sticky: true, className: 'leaflet-tooltip-light' });
+
+  // Zone labels
+  const westLabel = L.marker([-31.895, 115.782], {
+    icon: L.divIcon({
+      html: '<div style="background:rgba(255,255,255,0.82);border:1.5px solid #1B6B3A;color:#1B6B3A;font-weight:900;font-size:13px;letter-spacing:2px;padding:4px 10px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.14)">WEST ZONE</div>',
+      className: '', iconAnchor: [55, 14]
+    })
+  });
+  const eastLabel = L.marker([-31.88, 115.865], {
+    icon: L.divIcon({
+      html: '<div style="background:rgba(255,255,255,0.82);border:1.5px solid #0077a8;color:#0077a8;font-weight:900;font-size:13px;letter-spacing:2px;padding:4px 10px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.14)">EAST ZONE</div>',
+      className: '', iconAnchor: [55, 14]
+    })
+  });
+
+  zoneLayer.addLayer(west).addLayer(east).addLayer(westLabel).addLayer(eastLabel);
+  zoneLayer.addTo(map);
+}
+
+const bookingMarkers = [
+  { lat:-31.886, lng:115.763, id:'BS-2247', addr:'14 Hocking St, Karrinyup', items:'2x Yellow + 1x Red 240lt', status:'Collecting', vehicle:'STR-V01', emoji:'🗑', cls:'marker-collecting' },
+  { lat:-31.892, lng:115.801, id:'BS-2248', addr:'7 Odin Rd, Innaloo', items:'3x Yellow 240lt (Recycling)', status:'Collecting', vehicle:'STR-V01', emoji:'🗑', cls:'marker-collecting' },
+  { lat:-31.877, lng:115.871, id:'BS-2249', addr:'22 Balcatta Rd, Balcatta', items:'4x Red 240lt (General)', status:'Scheduled', vehicle:'STR-V02', emoji:'📍', cls:'marker-scheduled' },
+  { lat:-31.867, lng:115.851, id:'BS-2250', addr:'5 Tuart Hill Dr, Tuart Hill', items:'2x Red + 1x Yellow 240lt', status:'Scheduled', vehicle:'STR-V04', emoji:'📍', cls:'marker-scheduled' },
+  { lat:-31.901, lng:115.837, id:'BS-2233', addr:'31 Osborne Park Rd', items:'2x Yellow + 2x Red 240lt', status:'⚠ MISSED – Recovery', vehicle:'STR-V02', emoji:'⚠️', cls:'marker-missed' },
+  { lat:-31.921, lng:115.777, id:'BS-2251', addr:'9 Churchlands Ave', items:'3x Red 240lt (General)', status:'Pending', vehicle:'P. Singh (V03)', emoji:'⏳', cls:'marker-pending' },
+  { lat:-31.872, lng:115.775, id:'BS-2252', addr:'3 Scarborough Beach Rd', items:'2x Yellow 240lt', status:'Scheduled', vehicle:'STR-V01', emoji:'📍', cls:'marker-scheduled' },
+  { lat:-31.854, lng:115.862, id:'BS-2253', addr:'18 Westminster Dr', items:'3x Red 240lt', status:'Scheduled', vehicle:'STR-V02', emoji:'📍', cls:'marker-scheduled' },
+];
+
+function drawBookings() {
+  bookingLayer = L.layerGroup();
+  bookingMarkers.forEach(b => {
+    const icon = L.divIcon({
+      html: `<div style="position:relative;width:36px;height:36px">
+        <div style="position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;background:${b.cls==='marker-collecting'?'var(--stirling-green)':b.cls==='marker-missed'?'#a03030':b.cls==='marker-pending'?'#6a5000':'var(--think-blue-dark)'};border:2px solid rgba(255,255,255,0.3)">${b.emoji}</div>
+        ${b.cls==='marker-collecting'?'<div style="position:absolute;top:-4px;left:-4px;width:44px;height:44px;border-radius:50%;border:2px solid rgba(27,107,58,0.6);animation:expand-ring 2s infinite"></div>':''}
+      </div>`,
+      className: '', iconSize: [36,36], iconAnchor: [18,18], popupAnchor: [0,-20]
+    });
+    const psc = b.cls==='marker-collecting'?'#1B6B3A':b.cls==='marker-missed'?'#c0392b':b.cls==='marker-pending'?'#b7860b':'#0077a8';
+    const uid = b.id.replace(/[^a-zA-Z0-9]/g,'_');
+    const btnBase = 'background:none;border:none;padding:7px 10px;font-size:11px;cursor:pointer;flex:1;border-bottom:2px solid transparent;';
+    const marker = L.marker([b.lat, b.lng], { icon })
+      .bindPopup(`
+        <div style="min-width:240px;font-family:system-ui,sans-serif">
+          <!-- Header -->
+          <div style="font-weight:800;color:${psc};font-size:13px;margin-bottom:6px;border-bottom:2px solid ${psc};padding-bottom:5px">${b.id}</div>
+          <!-- Tab buttons -->
+          <div style="display:flex;border-bottom:1px solid #e8e8e8;margin-bottom:8px">
+            <button id="pbtn1-${uid}" onclick="popupTab('${uid}',1)"
+              style="${btnBase}border-bottom:2px solid #1B6B3A;color:#1B6B3A;font-weight:700;">📋 Job Details</button>
+            <button id="pbtn2-${uid}" onclick="popupTab('${uid}',2)"
+              style="${btnBase}color:#888;">🗑 Bin Specs</button>
+          </div>
+          <!-- Tab 1: Job Details -->
+          <div id="ptab1-${uid}" style="display:block">
+            <div style="margin-bottom:5px"><div style="color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Address</div><b style="color:#111;font-size:12px">${b.addr}</b></div>
+            <div style="margin-bottom:5px"><div style="color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Bins</div><span style="color:#333;font-size:12px">${b.items}</span></div>
+            <div style="margin-bottom:5px"><div style="color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Status</div><span style="font-weight:700;font-size:12px;color:${psc}">${b.status}</span></div>
+            <div><div style="color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Vehicle</div><span style="color:#333;font-size:12px">${b.vehicle}</span></div>
+          </div>
+          <!-- Tab 2: Bin Specs -->
+          <div id="ptab2-${uid}" style="display:none">${BIN_SPECS_HTML}</div>
+        </div>
+      `, { maxWidth: 270 });
+    bookingLayer.addLayer(marker);
+  });
+  bookingLayer.addTo(map);
+}
+
+const vehiclePositions = [
+  { lat:-31.884, lng:115.771, id:'STR-V01', driver:'M. Hayes', zone:'West', jobs:'6 done / 3 left', status:'Active', emoji:'🚛' },
+  { lat:-31.891, lng:115.858, id:'STR-V02', driver:'T. Brock', zone:'East', jobs:'4 done / 5 left', status:'Active', emoji:'🚛' },
+  { lat:-31.905, lng:115.795, id:'STR-V03', driver:'P. Singh', zone:'West', jobs:'8 done / 0 left', status:'Idle – Lunch', emoji:'🚛' },
+  { lat:-31.869, lng:115.842, id:'STR-V04', driver:'J. Chu', zone:'East', jobs:'3 done / 4 left', status:'Active', emoji:'🚛' },
+];
+
+function drawVehicles() {
+  vehicleLayer = L.layerGroup();
+  vehiclePositions.forEach(v => {
+    const icon = L.divIcon({
+      html: `<div style="background:#0f2540;border:2px solid #00b4d8;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 10px rgba(0,180,216,0.5)">${v.emoji}</div>`,
+      className: '', iconSize: [36,36], iconAnchor: [18,18], popupAnchor: [0,-20]
+    });
+    const vuid = v.id.replace(/[^a-zA-Z0-9]/g,'_');
+    const btnBase = 'background:none;border:none;padding:7px 10px;font-size:11px;cursor:pointer;flex:1;border-bottom:2px solid transparent;';
+    vehicleLayer.addLayer(L.marker([v.lat, v.lng], { icon })
+      .bindPopup(`
+        <div style="min-width:240px;font-family:system-ui,sans-serif">
+          <!-- Header -->
+          <div style="font-weight:800;color:#0077a8;font-size:13px;margin-bottom:6px;border-bottom:2px solid #0077a8;padding-bottom:5px">🚛 ${v.id}</div>
+          <!-- Tab buttons -->
+          <div style="display:flex;border-bottom:1px solid #e8e8e8;margin-bottom:8px">
+            <button id="pbtn1-${vuid}" onclick="popupTab('${vuid}',1)"
+              style="${btnBase}border-bottom:2px solid #0077a8;color:#0077a8;font-weight:700;">📋 Vehicle</button>
+            <button id="pbtn2-${vuid}" onclick="popupTab('${vuid}',2)"
+              style="${btnBase}color:#888;">🗑 Bin Specs</button>
+          </div>
+          <!-- Tab 1: Vehicle Details -->
+          <div id="ptab1-${vuid}" style="display:block">
+            <div style="margin-bottom:4px"><div style="color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Driver</div><b style="color:#111">${v.driver}</b></div>
+            <div style="margin-bottom:4px"><div style="color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Zone</div><span style="color:#333">${v.zone}</span></div>
+            <div style="margin-bottom:4px"><div style="color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Jobs</div><span style="color:#333">${v.jobs}</span></div>
+            <div><div style="color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.5px">Status</div><span style="font-weight:700;color:${v.status==='Active'?'#1B6B3A':'#b7860b'}">${v.status}</span></div>
+          </div>
+          <!-- Tab 2: Bin Specs -->
+          <div id="ptab2-${vuid}" style="display:none">${BIN_SPECS_HTML}</div>
+        </div>
+      `, { maxWidth: 270 }));
+  });
+  vehicleLayer.addTo(map);
+}
+
+function toggleLayer(name, btn) {
+  btn.classList.toggle('active');
+  layers[name] = !layers[name];
+  if (name === 'zones') layers[name] ? zoneLayer.addTo(map) : map.removeLayer(zoneLayer);
+  if (name === 'bookings') layers[name] ? bookingLayer.addTo(map) : map.removeLayer(bookingLayer);
+  if (name === 'vehicles') layers[name] ? vehicleLayer.addTo(map) : map.removeLayer(vehicleLayer);
+  if (name === 'routes') {
+    if (layers[name]) {
+      routeLayer = L.layerGroup();
+      // Draw route line for V01
+      L.polyline([
+        [-31.884,115.771],[-31.886,115.763],[-31.892,115.801],[-31.872,115.775]
+      ], { color:'#00b4d8', weight:3, dashArray:'8,4', opacity:0.7 }).addTo(routeLayer);
+      // Draw route line for V02
+      L.polyline([
+        [-31.891,115.858],[-31.877,115.871],[-31.867,115.851],[-31.869,115.842],[-31.853,115.862]
+      ], { color:'#3dc98a', weight:3, dashArray:'8,4', opacity:0.7 }).addTo(routeLayer);
+      routeLayer.addTo(map);
+    } else if (routeLayer) map.removeLayer(routeLayer);
+  }
+}
+
+function focusBooking(lat, lng, id) {
+  switchView('map');
+  setTimeout(() => {
+    map.flyTo([lat, lng], 16, { duration: 1.2 });
+  }, 100);
+}
+
+// ──────────────────────────────────────
+// BOOKINGS TABLE
+// ──────────────────────────────────────
+function renderBookings() {
+  const tbody = document.getElementById('bookings-tbody');
+  tbody.innerHTML = bookingsData.map(b => {
+    const sColor = b.status==='Collecting'?'var(--success)':b.status==='Collected'?'var(--stirling-pale)':b.status==='Missed'?'var(--alert-red)':b.status==='Pending'?'var(--alert-yellow)':'var(--think-blue)';
+    const zColor = b.zone==='West'?'var(--stirling-pale)':'var(--think-blue)';
+    return `<tr>
+      <td style="color:var(--think-blue);font-weight:600">${b.id}</td>
+      <td>${b.address}</td>
+      <td>${b.suburb}</td>
+      <td style="color:${zColor};font-weight:600">${b.zone}</td>
+      <td>${b.items}</td>
+      <td style="color:var(--text-secondary)">${b.booked}</td>
+      <td style="font-weight:600">${b.scheduled}</td>
+      <td style="color:${sColor};font-weight:600">${b.status}</td>
+      <td style="color:var(--text-secondary)">${b.driver}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTable(query) {
+  const rows = document.querySelectorAll('#bookings-tbody tr');
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ──────────────────────────────────────
+// ROUTES VIEW
+// ──────────────────────────────────────
+function renderRoutes() {
+  const v01Stops = [
+    { addr:'14 Hocking St, Karrinyup — 2Y+1R bins', status:'✅ Collected', time:'08:14' },
+    { addr:'7 Odin Rd, Innaloo — 3Y bins', status:'✅ Collected', time:'09:02' },
+    { addr:'3 Scarborough Beach Rd — 2Y bins', status:'🔄 En route', time:'~10:30' },
+    { addr:'9 Churchlands Ave — 3R bins', status:'⏳ Scheduled', time:'~11:45' },
+    { addr:'18 Wembley Downs Rd — 1Y+2R bins', status:'⏳ Scheduled', time:'~13:00' },
+  ];
+  const v02Stops = [
+    { addr:'22 Balcatta Rd, Balcatta — 4R bins', status:'✅ Collected', time:'08:30' },
+    { addr:'18 Westminster Dr — 4Y bins', status:'✅ Collected', time:'09:15' },
+    { addr:'31 Osborne Park Rd — 2Y+2R bins ⚠', status:'❌ Missed – Recovery', time:'09:55' },
+    { addr:'5 Tuart Hill Dr — 2R+1Y bins', status:'🔄 En route', time:'~11:00' },
+    { addr:'14 Nollamara Ave — 3Y bins', status:'⏳ Scheduled', time:'~12:15' },
+  ];
+
+  document.getElementById('route-v01').innerHTML = v01Stops.map((s,i) =>
+    `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div style="width:20px;height:20px;border-radius:50%;background:${s.status.includes('✅')?'var(--stirling-green)':s.status.includes('🔄')?'var(--think-blue)':s.status.includes('❌')?'var(--alert-red)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">${i+1}</div>
+        ${i<v01Stops.length-1?'<div style="width:2px;height:20px;background:var(--border);margin-top:2px"></div>':''}
+      </div>
+      <div style="padding-top:2px">
+        <div style="font-size:12px;font-weight:600">${s.addr}</div>
+        <div style="font-size:11px;color:${s.status.includes('✅')?'var(--success)':s.status.includes('🔄')?'var(--think-blue)':s.status.includes('❌')?'var(--alert-red)':'var(--text-muted)'}">${s.status} — ${s.time}</div>
+      </div>
+    </div>`
+  ).join('');
+
+  document.getElementById('route-v02').innerHTML = v02Stops.map((s,i) =>
+    `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div style="width:20px;height:20px;border-radius:50%;background:${s.status.includes('✅')?'var(--stirling-green)':s.status.includes('🔄')?'var(--think-blue)':s.status.includes('❌')?'var(--alert-red)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;flex-shrink:0">${i+1}</div>
+        ${i<v02Stops.length-1?'<div style="width:2px;height:20px;background:var(--border);margin-top:2px"></div>':''}
+      </div>
+      <div style="padding-top:2px">
+        <div style="font-size:12px;font-weight:600">${s.addr}</div>
+        <div style="font-size:11px;color:${s.status.includes('✅')?'var(--success)':s.status.includes('🔄')?'var(--think-blue)':s.status.includes('❌')?'var(--alert-red)':'var(--text-muted)'}">${s.status} — ${s.time}</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+// ──────────────────────────────────────
+// ANALYTICS
+// ──────────────────────────────────────
+function renderAnalytics() {
+  // Suburb bars
+  const maxCount = Math.max(...suburbData.map(s => s.count));
+  document.getElementById('suburb-chart').innerHTML = suburbData.map(s =>
+    `<div class="bar-row">
+      <span class="bar-label">${s.name}</span>
+      <div class="bar-track">
+        <div class="bar-fill animated-bar" style="width:${Math.round(s.count/maxCount*100)}%;background:${s.zone==='West'?'var(--stirling-green)':'var(--think-blue)'}"></div>
+      </div>
+      <span class="bar-val">${s.count}</span>
+    </div>`
+  ).join('');
+
+  // KPI scorecard
+  document.getElementById('kpi-scorecard').innerHTML = kpiData.map(k =>
+    `<tr>
+      <td style="padding:7px 8px;border-bottom:1px solid var(--border)">${k.name}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid var(--border);text-align:center;color:var(--text-secondary)">${k.target}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid var(--border);text-align:center;font-weight:700;color:${k.ok?'var(--success)':'var(--alert-red)'}">${k.actual}</td>
+      <td style="padding:7px 8px;border-bottom:1px solid var(--border);text-align:center">${k.ok?'<span style="color:var(--success)">✅ Met</span>':'<span style="color:var(--alert-red)">⚠ Review</span>'}</td>
+    </tr>`
+  ).join('');
+
+  // Monthly bar chart
+  const maxVal = Math.max(...monthlyData.map(m => m.val));
+  document.getElementById('monthly-chart').innerHTML = monthlyData.map((m,i) => {
+    const h = Math.round(m.val / maxVal * 90);
+    const isCurrentMonth = m.month === 'Mar';
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px">
+      <div style="font-size:10px;color:var(--text-secondary)">${m.val}</div>
+      <div style="width:100%;height:${h}px;background:${isCurrentMonth?'var(--think-blue)':'var(--stirling-green)'};border-radius:4px 4px 0 0;opacity:${isCurrentMonth?1:0.7}"></div>
+    </div>`;
+  }).join('');
+  document.getElementById('monthly-labels').innerHTML = monthlyData.map(m =>
+    `<div style="flex:1;text-align:center;font-size:10px;color:var(--text-muted)">${m.month}</div>`
+  ).join('');
+}
+
+// ──────────────────────────────────────
+// MODAL
+// ──────────────────────────────────────
+function openModal(type) {
+  if (type === 'alerts') {
+    document.getElementById('modal-title').textContent = '🔔 Active Alerts';
+    document.getElementById('modal-content').innerHTML = `
+      <div style="background:rgba(224,82,82,0.1);border:1px solid rgba(224,82,82,0.3);border-radius:8px;padding:12px;margin-bottom:10px">
+        <div style="font-weight:700;color:var(--alert-red);margin-bottom:6px">⚠ MISSED SERVICE — BS-2233</div>
+        <div class="modal-row"><span class="modal-label">Address</span><span class="modal-value">31 Osborne Park Rd</span></div>
+        <div class="modal-row"><span class="modal-label">Recovery Vehicle</span><span class="modal-value">STR-V02 (T. Brock)</span></div>
+        <div class="modal-row"><span class="modal-label">Recovery ETA</span><span class="modal-value">8 Mar 2026, 08:00</span></div>
+        <div class="modal-row"><span class="modal-label">KPI Impact</span><span class="modal-value" style="color:var(--alert-red)">MS KPI breached — notified City</span></div>
+      </div>
+      <div style="background:rgba(212,185,74,0.1);border:1px solid rgba(212,185,74,0.3);border-radius:8px;padding:12px">
+        <div style="font-weight:700;color:var(--alert-yellow);margin-bottom:6px">⚠ CAPACITY ALERT — STR-V03</div>
+        <div class="modal-row"><span class="modal-label">Current Load</span><span class="modal-value">88%</span></div>
+        <div class="modal-row"><span class="modal-label">Action</span><span class="modal-value">Disposal run to nominated facility</span></div>
+        <div class="modal-row"><span class="modal-label">Driver</span><span class="modal-value">P. Singh — On lunch break</span></div>
+      </div>`;
+  }
+  document.getElementById('booking-modal').classList.add('open');
+}
+function closeModal() { document.getElementById('booking-modal').classList.remove('open'); }
+document.getElementById('booking-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ──────────────────────────────────────
+// LIVE UPDATES SIMULATION
+// ──────────────────────────────────────
+let collectCount = 21;
+function simulateLive() {
+  // Randomly update collection count
+  if (Math.random() > 0.85) {
+    collectCount++;
+    document.querySelectorAll('.bottom-stat-value')[0].textContent = collectCount;
+  }
+  // Pulse the API dot
+}
+setInterval(simulateLive, 4000);
+
+// ──────────────────────────────────────
+// INIT
+// ──────────────────────────────────────
+// ── MAP SIZING ──────────────────────────────────────────────────────────────
+// CSS handles layout (flex-direction: row on #view-map, position:absolute on
+// #map). sizeMap() only calls invalidateSize() so Leaflet re-measures after
+// a resize or tab-switch.
+function sizeMap() {
+  if (typeof map !== 'undefined' && map) {
+    map.invalidateSize(true);
+  }
+}
+window.addEventListener('resize', sizeMap);
+
+// window 'load' fires after all CDN scripts (Leaflet) are fully parsed.
+window.addEventListener('load', function () {
+  initMap();
+  renderBookings();
+  // Belt-and-braces: force Leaflet to re-measure 200 ms after load in case
+  // any repaint delay causes it to see a zero-size container on first render.
+  setTimeout(function () { if (typeof map !== 'undefined' && map) map.invalidateSize(true); }, 200);
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CLAY INTEGRATION
+// API docs: https://docs.clay.com/reference/api-reference
+// Source used: POST /v1/sources/google-maps-places  (Live mode)
+// ══════════════════════════════════════════════════════════════════════════════
+
+let clayMode = 'demo';
+let clayBizTypes = new Set(['retail','food','office','medical']);
+let clayResults = [];
+
+function setClayMode(mode) {
+  clayMode = mode;
+  document.getElementById('clay-mode-demo').classList.toggle('active', mode === 'demo');
+  document.getElementById('clay-mode-live').classList.toggle('active', mode === 'live');
+  document.getElementById('clay-live-note').style.display = mode === 'live' ? 'block' : 'none';
+}
+
+function toggleBizType(el, type) {
+  el.classList.toggle('active');
+  if (clayBizTypes.has(type)) clayBizTypes.delete(type); else clayBizTypes.add(type);
+}
+
+function selectAllSuburbs(checked) {
+  document.querySelectorAll('.suburb-check').forEach(cb => cb.checked = checked);
+}
+
+function toggleAllRows(masterCb) {
+  document.querySelectorAll('.clay-row-check').forEach(cb => cb.checked = masterCb.checked);
+}
+
+// ── DEMO DATA ────────────────────────────────────────────────────────────────
+const CLAY_DEMO = [
+  { name:'Karrinyup Shopping Centre', suburb:'Karrinyup', zone:'West', type:'Retail',      bins:'2× Yellow 360L, 4× Red 240L, 1× 1100L', tl:true,  phone:'(08) 9447 5444', status:'active',   lat:-31.866, lng:115.779 },
+  { name:'Scarborough Beach Hotel',   suburb:'Scarborough', zone:'West', type:'Hospitality', bins:'3× Yellow 240L, 2× Red 240L',           tl:true,  phone:'(08) 9341 3555', status:'active',   lat:-31.893, lng:115.759 },
+  { name:'Innaloo IGA',               suburb:'Innaloo',    zone:'West', type:'Retail',      bins:'2× Yellow 240L, 1× Red 240L',           tl:false, phone:'(08) 9446 0100', status:'prospect', lat:-31.894, lng:115.799 },
+  { name:'Osborne Park Auto Mall',    suburb:'Osborne Park',zone:'East',type:'Automotive',  bins:'1× Red 240L',                           tl:false, phone:'(08) 9244 5000', status:'prospect', lat:-31.893, lng:115.825 },
+  { name:'Balcatta Medical Centre',   suburb:'Balcatta',   zone:'East', type:'Medical',     bins:'2× Yellow 240L, 1× Red 240L',           tl:true,  phone:'(08) 9240 1655', status:'active',   lat:-31.873, lng:115.841 },
+  { name:'Wembley Golf Course',       suburb:'Wembley',    zone:'West', type:'Sports/Rec',  bins:'2× Yellow 360L, 2× Red 240L, 1× 660L', tl:true,  phone:'(08) 9387 8600', status:'active',   lat:-31.929, lng:115.810 },
+  { name:'Mt Hawthorn Village Cafe',  suburb:'Mt Hawthorn',zone:'East', type:'Food & Bev',  bins:'1× Yellow 240L, 1× Red 240L',           tl:false, phone:'(08) 9443 2200', status:'new',      lat:-31.916, lng:115.841 },
+  { name:'Yokine Dental Group',       suburb:'Yokine',     zone:'East', type:'Medical',     bins:'1× Yellow 240L, 1× Red 240L',           tl:false, phone:'(08) 9349 1122', status:'prospect', lat:-31.903, lng:115.860 },
+  { name:'Joondanna Industrial Units',suburb:'Joondanna',  zone:'East', type:'Industrial',  bins:'2× Red 240L, 2× 660L',                  tl:true,  phone:'(08) 9328 4400', status:'active',   lat:-31.905, lng:115.844 },
+  { name:'Churchlands Senior High',   suburb:'Churchlands',zone:'West', type:'Office',      bins:'4× Yellow 240L, 3× Red 240L',           tl:true,  phone:'(08) 9382 3200', status:'active',   lat:-31.904, lng:115.807 },
+  { name:'Gwelup Child Care',         suburb:'Gwelup',     zone:'West', type:'Office',      bins:'1× Yellow 240L, 1× Red 240L',           tl:false, phone:'(08) 9447 4100', status:'prospect', lat:-31.855, lng:115.790 },
+  { name:'Stirling Pharmacy Plus',    suburb:'Stirling',   zone:'East', type:'Retail',      bins:'1× Yellow 240L, 1× Red 240L',           tl:false, phone:'(08) 9349 0055', status:'new',      lat:-31.887, lng:115.854 },
+  { name:'Balcatta Business Centre',  suburb:'Balcatta',   zone:'East', type:'Office',      bins:'3× Yellow 360L, 2× Red 240L, 1× 1100L',tl:true,  phone:'(08) 9240 4800', status:'active',   lat:-31.875, lng:115.855 },
+  { name:'Doubleview Pizza & Pasta',  suburb:'Doubleview', zone:'West', type:'Food & Bev',  bins:'1× Yellow 240L, 1× Red 240L',           tl:false, phone:'(08) 9446 7788', status:'new',      lat:-31.888, lng:115.768 },
+  { name:'Nollamara Convenience',     suburb:'Nollamara',  zone:'East', type:'Retail',      bins:'1× Yellow 240L, 1× Red 240L',           tl:false, phone:'(08) 9344 1234', status:'prospect', lat:-31.876, lng:115.865 },
+];
+
+// ── LIVE API CALL ────────────────────────────────────────────────────────────
+// Clay REST API — Google Maps Places source
+// POST https://api.clay.com/v1/sources/google-maps-places
+// Body: { query: "<type> in <suburb> WA", limit: 10 }
+// Headers: Authorization: Bearer <key>, Content-Type: application/json
+async function fetchClayLive(suburb, bizType, apiKey) {
+  const query = `${bizType} in ${suburb} Western Australia`;
+  const resp = await fetch('https://api.clay.com/v1/sources/google-maps-places', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, limit: 10, country: 'AU', region: 'WA' })
+  });
+  if (!resp.ok) throw new Error(`Clay API error ${resp.status}: ${await resp.text()}`);
+  const data = await resp.json();
+  // Normalise Clay response into our display format
+  return (data.results || data.data || []).map(r => ({
+    name:   r.name || r.title || 'Unknown',
+    suburb: suburb,
+    zone:   ['Karrinyup','Scarborough','Innaloo','Churchlands','Doubleview','Gwelup','City Beach','Floreat','Wembley','Hamersley'].includes(suburb) ? 'West' : 'East',
+    type:   bizType,
+    bins:   '—',
+    tl:     false,
+    phone:  r.phone || r.formatted_phone_number || '—',
+    status: 'prospect',
+    address: r.formatted_address || r.address || suburb + ' WA',
+  }));
+}
+
+// ── MAIN SEARCH RUNNER ───────────────────────────────────────────────────────
+async function runClaySearch() {
+  const selectedSuburbs = [...document.querySelectorAll('.suburb-check:checked')].map(cb => cb.value);
+  if (!selectedSuburbs.length) { alert('Please select at least one suburb.'); return; }
+
+  const btn = document.getElementById('clay-search-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Searching…';
+  document.getElementById('clay-spinner').style.display = 'block';
+  document.getElementById('clay-empty').style.display = 'none';
+  document.getElementById('clay-results').style.display = 'none';
+  document.getElementById('clay-count-badge').style.display = 'none';
+  document.getElementById('clay-export-btn').style.display = 'none';
+  document.getElementById('clay-enrich-btn').style.display = 'none';
+  document.getElementById('clay-attribution').style.display = 'none';
+
+  clayResults = [];
+
+  try {
+    if (clayMode === 'demo') {
+      // Filter demo data by selected suburbs and active biz types
+      const typeMap = { 'Retail':'retail','Food & Bev':'food','Office':'office','Medical':'medical',
+                        'Automotive':'auto','Industrial':'industrial','Sports/Rec':'sport','Hospitality':'hospitality' };
+      await new Promise(r => setTimeout(r, 900)); // simulate latency
+      clayResults = CLAY_DEMO.filter(d =>
+        selectedSuburbs.includes(d.suburb) &&
+        clayBizTypes.has(typeMap[d.type] || d.type.toLowerCase())
+      );
+      // Apply bin filter
+      if (document.getElementById('clay-think-lid').checked)
+        clayResults = clayResults.filter(d => d.tl);
+    } else {
+      // Live mode: call Clay API for each suburb × type combo
+      const apiKey = document.getElementById('clay-api-key').value.trim();
+      if (!apiKey) { alert('Enter your Clay API key to use Live mode.'); throw new Error('no key'); }
+      const combos = [];
+      selectedSuburbs.forEach(s => clayBizTypes.forEach(t => combos.push([s, t])));
+      let done = 0;
+      for (const [suburb, type] of combos) {
+        document.getElementById('clay-spinner-msg').textContent =
+          `Fetching ${type} in ${suburb}… (${++done}/${combos.length})`;
+        try {
+          const rows = await fetchClayLive(suburb, type, apiKey);
+          clayResults.push(...rows);
+        } catch(e) { console.warn('Clay fetch error', suburb, type, e); }
+      }
+    }
+  } catch(e) {
+    if (e.message !== 'no key') console.error('Clay search error:', e);
+    btn.disabled = false;
+    btn.textContent = '🔍 Search Businesses';
+    document.getElementById('clay-spinner').style.display = 'none';
+    document.getElementById('clay-empty').style.display = 'block';
+    return;
+  }
+
+  renderClayResults();
+  updateClayStats(selectedSuburbs);
+
+  btn.disabled = false;
+  btn.textContent = '🔍 Search Businesses';
+  document.getElementById('clay-spinner').style.display = 'none';
+}
+
+// ── RENDER RESULTS ───────────────────────────────────────────────────────────
+function renderClayResults() {
+  const tbody = document.getElementById('clay-tbody');
+  if (!clayResults.length) {
+    document.getElementById('clay-empty').style.display = 'block';
+    return;
+  }
+
+  const statusLabel = { active:'Active', prospect:'Prospect', new:'New Lead' };
+  const statusClass = { active:'clay-status-active', prospect:'clay-status-prospect', new:'clay-status-new' };
+
+  tbody.innerHTML = clayResults.map((r, i) => {
+    const binHtml = r.bins.split(', ').map(b => {
+      const cls = b.includes('Yellow') ? 'bin-y' : b.includes('Red') ? 'bin-r' : 'bin-g';
+      return `<span class="bin-tag ${cls}">${b}</span>`;
+    }).join('');
+    const tlHtml = r.tl
+      ? `<span class="tl-badge tl-yes">✓ TL</span>`
+      : `<span class="tl-badge tl-no">—</span>`;
+    return `<tr>
+      <td><input type="checkbox" class="clay-row-check" data-idx="${i}" style="accent-color:#8b5cf6"></td>
+      <td><div class="biz-name">${r.name}</div>
+          <div style="font-size:10px;color:var(--text-muted)">${r.zone} Zone</div></td>
+      <td style="color:var(--text-secondary)">${r.suburb}</td>
+      <td><span class="biz-type-tag">${r.type}</span></td>
+      <td style="min-width:160px">${binHtml}</td>
+      <td>${tlHtml}</td>
+      <td style="color:var(--text-secondary);font-size:11px">${r.phone}</td>
+      <td><span class="clay-status-pill ${statusClass[r.status]||'clay-status-prospect'}">${statusLabel[r.status]||r.status}</span></td>
+      <td style="white-space:nowrap">
+        <button class="clay-action-btn route" onclick="addToRoute(${i})">+ Route</button>
+        <button class="clay-action-btn" onclick="viewOnMap(${i})">🗺 Map</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('clay-results').style.display = 'block';
+  document.getElementById('clay-count-badge').textContent = clayResults.length + ' result' + (clayResults.length !== 1 ? 's' : '');
+  document.getElementById('clay-count-badge').style.display = 'inline-flex';
+  document.getElementById('clay-export-btn').style.display = 'inline-block';
+  document.getElementById('clay-enrich-btn').style.display = 'inline-block';
+  document.getElementById('clay-attribution').style.display = 'block';
+  document.getElementById('clay-last-update').textContent = new Date().toLocaleString('en-AU', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function updateClayStats(suburbs) {
+  const box = document.getElementById('clay-stats-box');
+  const content = document.getElementById('clay-stats-content');
+  const active = clayResults.filter(r => r.status === 'active').length;
+  const prospect = clayResults.filter(r => r.status === 'prospect' || r.status === 'new').length;
+  const tlCount = clayResults.filter(r => r.tl).length;
+  content.innerHTML = `
+    <div>📍 Suburbs searched: <b style="color:var(--text-primary)">${suburbs.length}</b></div>
+    <div>🏢 Businesses found: <b style="color:var(--text-primary)">${clayResults.length}</b></div>
+    <div>✅ Active clients: <b style="color:var(--success)">${active}</b></div>
+    <div>🎯 Prospects: <b style="color:#d4b94a">${prospect}</b></div>
+    <div>📡 Think Lid registered: <b style="color:var(--think-blue)">${tlCount}</b></div>`;
+  box.style.display = 'block';
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function addToRoute(idx) {
+  const r = clayResults[idx];
+  alert(`Added ${r.name} (${r.suburb}) to today's route queue.\n\nIn the live system this would push a booking to the Bookings tab and route planner.`);
+}
+
+function viewOnMap(idx) {
+  const r = clayResults[idx];
+  if (r.lat && r.lng) {
+    switchView('map');
+    setTimeout(() => { if (map) map.setView([r.lat, r.lng], 16); }, 300);
+  } else {
+    alert(`Map coordinates not available in Demo mode for ${r.name}.\n\nIn Live mode, Clay returns geocoded coordinates from Google Maps Places.`);
+  }
+}
+
+function enrichSelected() {
+  const checked = [...document.querySelectorAll('.clay-row-check:checked')];
+  if (!checked.length) { alert('Select one or more businesses to enrich.'); return; }
+  const names = checked.map(cb => clayResults[+cb.dataset.idx].name).join(', ');
+  if (clayMode === 'live') {
+    alert(`Enriching ${checked.length} business(es) via Clay:\n${names}\n\nThis would call POST /v1/enrichments to fetch website, LinkedIn, ABN, employee count, and email contacts.`);
+  } else {
+    alert(`Demo mode: would enrich ${checked.length} business(es):\n${names}\n\nSwitch to Live mode with a Clay API key to fetch real enrichment data (website, LinkedIn, ABN, employee count, contact emails).`);
+  }
+}
+
+function exportClayCSV() {
+  if (!clayResults.length) return;
+  const headers = ['Business','Suburb','Zone','Type','Bin Config','Think Lid','Phone','Status'];
+  const rows = clayResults.map(r => [
+    `"${r.name}"`, r.suburb, r.zone, r.type, `"${r.bins}"`, r.tl ? 'Yes' : 'No', r.phone, r.status
+  ].join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'stirling-clay-prospects-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SETTINGS DRAWER
+// ══════════════════════════════════════════════════════════════════════════════
+function openSettings() {
+  document.getElementById('settings-overlay').classList.add('open');
+  document.getElementById('settings-drawer').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+  document.getElementById('settings-drawer').classList.remove('open');
+}
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SETTINGS DRAWER OVERLAY
+═══════════════════════════════════════════════════════════════════════════ -->
+<div class="settings-overlay" id="settings-overlay" onclick="closeSettings()"></div>
+<div class="settings-drawer" id="settings-drawer">
+
+  <!-- Header -->
+  <div class="settings-drawer-header">
+    <div class="settings-drawer-title">
+      <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--stirling-light),var(--stirling-green));display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:var(--text-primary)">Settings &amp; API Integration</div>
+        <div style="font-size:11px;color:var(--text-muted)">City of Stirling CIS Platform · Contractor Configuration</div>
+      </div>
+    </div>
+    <button class="settings-close-btn" onclick="closeSettings()">×</button>
+  </div>
+
+  <!-- Body -->
+  <div class="settings-drawer-body">
+
+    <!-- Status Cards -->
+    <div class="settings-section">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:4px">
+        <div style="background:var(--bg-card);border:1px solid var(--success);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">🔗</div>
+          <div style="font-size:13px;font-weight:700;color:var(--success)">Connected</div>
+          <div style="font-size:10px;color:var(--text-muted)">CIS Platform</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">🔐</div>
+          <div style="font-size:13px;font-weight:700;color:var(--think-blue)">OAuth 2.0</div>
+          <div style="font-size:10px;color:var(--text-muted)">JWT + Bearer</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">📄</div>
+          <div style="font-size:13px;font-weight:700;color:var(--alert-yellow)">v1.3.2</div>
+          <div style="font-size:10px;color:var(--text-muted)">API Version</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">⚡</div>
+          <div style="font-size:13px;font-weight:700;color:var(--success)">99.97%</div>
+          <div style="font-size:10px;color:var(--text-muted)">Uptime (30d)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESTful Endpoints -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <div class="settings-section-icon" style="background:rgba(0,180,216,0.12);border:1px solid rgba(0,180,216,0.25)">🔌</div>
+        <div class="settings-section-title">RESTful API Endpoints</div>
+        <div style="margin-left:auto;font-size:10px;font-family:monospace;color:var(--text-muted);background:var(--bg-deep);padding:3px 8px;border-radius:5px;border:1px solid var(--border)">https://api.stirling.wa.gov.au/cis/v1/waste</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div class="api-endpoint"><span class="endpoint-method method-get">GET</span><span class="endpoint-path">/bookings</span><span class="endpoint-status">● 200</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-left:4px;margin-bottom:2px">Fetch all pending resident bookings from portal</div>
+        <div class="api-endpoint"><span class="endpoint-method method-get">GET</span><span class="endpoint-path">/bookings/{id}</span><span class="endpoint-status">● 200</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-left:4px;margin-bottom:2px">Get single booking detail by ID</div>
+        <div class="api-endpoint"><span class="endpoint-method method-post">POST</span><span class="endpoint-path">/bookings/{id}/status</span><span class="endpoint-status">● 201</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-left:4px;margin-bottom:2px">Push collection status update to City (collected/missed/rescheduled)</div>
+        <div class="api-endpoint"><span class="endpoint-method method-post">POST</span><span class="endpoint-path">/collections/complete</span><span class="endpoint-status">● 201</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-left:4px;margin-bottom:2px">Submit completed collection record with timestamp and items</div>
+        <div class="api-endpoint"><span class="endpoint-method method-get">GET</span><span class="endpoint-path">/residents/{id}/allowance</span><span class="endpoint-status">● 200</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-left:4px;margin-bottom:2px">Check resident's annual allowance utilisation</div>
+        <div class="api-endpoint"><span class="endpoint-method method-post">POST</span><span class="endpoint-path">/reports/monthly</span><span class="endpoint-status">● 202</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-left:4px;margin-bottom:2px">Submit pre-approved monthly report (JSON/CSV)</div>
+        <div class="api-endpoint"><span class="endpoint-method method-put">PUT</span><span class="endpoint-path">/bookings/{id}/reschedule</span><span class="endpoint-status">● 200</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-left:4px;margin-bottom:2px">Reschedule missed collection; triggers resident notification</div>
+        <div class="api-endpoint"><span class="endpoint-method method-get">GET</span><span class="endpoint-path">/zones/{zone}/schedule</span><span class="endpoint-status">● 200</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-left:4px">Get all upcoming bookings for East or West zone</div>
+      </div>
+    </div>
+
+    <!-- Three columns: Auth / Data Formats / Error Handling -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px">
+
+      <div class="settings-section" style="margin-bottom:0">
+        <div class="settings-section-header">
+          <div class="settings-section-icon" style="background:rgba(224,82,82,0.1);border:1px solid rgba(224,82,82,0.2)">🔐</div>
+          <div class="settings-section-title">Security</div>
+        </div>
+        <div class="api-auth-row"><span class="auth-label">Protocol</span><span class="auth-value">OAuth 2.0 / OIDC</span></div>
+        <div class="api-auth-row"><span class="auth-label">Token</span><span class="auth-value">JWT RS256</span></div>
+        <div class="api-auth-row"><span class="auth-label">Expiry</span><span class="auth-value">3600s + refresh</span></div>
+        <div class="api-auth-row"><span class="auth-label">Transport</span><span class="auth-value">TLS 1.3</span></div>
+        <div class="api-auth-row"><span class="auth-label">Key Rotation</span><span class="auth-value">90-day</span></div>
+        <div class="api-auth-row"><span class="auth-label">IP Allowlist</span><span class="auth-value">Contractor CIDR</span></div>
+        <div class="api-auth-row"><span class="auth-label">Rate Limit</span><span class="auth-value">1000 req/hr</span></div>
+        <div class="api-auth-row"><span class="auth-label">Scope</span><span class="auth-value" style="font-size:9px">read:bookings write:status</span></div>
+      </div>
+
+      <div class="settings-section" style="margin-bottom:0">
+        <div class="settings-section-header">
+          <div class="settings-section-icon" style="background:rgba(212,185,74,0.1);border:1px solid rgba(212,185,74,0.2)">📦</div>
+          <div class="settings-section-title">Data Formats</div>
+        </div>
+        <div class="api-auth-row"><span class="auth-label">Primary</span><span class="auth-value">JSON (UTF-8)</span></div>
+        <div class="api-auth-row"><span class="auth-label">Fallback</span><span class="auth-value">SFTP / CSV</span></div>
+        <div class="api-auth-row"><span class="auth-label">Dates</span><span class="auth-value">ISO 8601</span></div>
+        <div class="api-auth-row"><span class="auth-label">Addresses</span><span class="auth-value">G-NAF</span></div>
+        <div class="api-auth-row"><span class="auth-label">Versioning</span><span class="auth-value">/v1/ in path</span></div>
+        <div class="api-auth-row"><span class="auth-label">Pagination</span><span class="auth-value">Cursor-based</span></div>
+      </div>
+
+      <div class="settings-section" style="margin-bottom:0">
+        <div class="settings-section-header">
+          <div class="settings-section-icon" style="background:rgba(232,148,58,0.1);border:1px solid rgba(232,148,58,0.2)">⚠️</div>
+          <div class="settings-section-title">Error Codes</div>
+        </div>
+        <div class="api-auth-row"><span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:9px">400</code> Bad Request</span><span class="auth-value" style="color:var(--alert-orange)">Validation</span></div>
+        <div class="api-auth-row"><span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:9px">401</code> Unauthorized</span><span class="auth-value" style="color:var(--alert-orange)">Re-auth</span></div>
+        <div class="api-auth-row"><span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:9px">404</code> Not Found</span><span class="auth-value" style="color:var(--alert-orange)">No booking</span></div>
+        <div class="api-auth-row"><span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:9px">429</code> Rate Limited</span><span class="auth-value" style="color:var(--alert-red)">Backoff</span></div>
+        <div class="api-auth-row"><span class="auth-label"><code style="background:rgba(0,0,0,0.3);padding:1px 4px;border-radius:3px;font-size:9px">500</code> Server Error</span><span class="auth-value" style="color:var(--alert-red)">→ SFTP</span></div>
+      </div>
+    </div>
+
+    <!-- JSON Payload Sample -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <div class="settings-section-icon" style="background:rgba(0,180,216,0.1);border:1px solid rgba(0,180,216,0.2)">📄</div>
+        <div class="settings-section-title">Sample Booking Payload — GET /bookings</div>
+      </div>
+      <pre style="background:#0a1520;border:1px solid var(--border);border-radius:8px;padding:14px;font-size:11px;color:#7fd4e0;overflow-x:auto;line-height:1.6;margin:0">{
+  "bookingId": "BS-2249",
+  "version": "1.3.2",
+  "timestamp": "2026-03-07T09:14:32+08:00",
+  "resident": {
+    "id": "R-98432",
+    "address": "22 Balcatta Rd",
+    "suburb": "Balcatta",
+    "postcode": "6021",
+    "zone": "EAST",
+    "privacyConsentRef": "PC-20260307-98432"
+  },
+  "service": {
+    "type": "COMMERCIAL_WASTE_COLLECTION",
+    "items": [
+      { "itemType": "YELLOW_RECYCLING_240LT", "binType": "YELLOW_240LT",
+        "colour": "Yellow", "stream": "Recycling" }
+    ],
+    "binType": "240LT_THINK_LID",
+    "binColour": "YELLOW",
+    "wasteStream": "RECYCLING",
+    "requestedDate": "2026-03-07",
+    "scheduledDate": "2026-03-11"
+  },
+  "status": "SCHEDULED",
+  "contractorRef": "STR-V02",
+  "_links": {
+    "self": "/cis/v1/waste/bookings/BS-2249",
+    "status": "/cis/v1/waste/bookings/BS-2249/status"
+  }
+}</pre>
+    </div>
+
+    <!-- SFTP Fallback -->
+    <div class="settings-section" style="margin-bottom:0">
+      <div class="settings-section-header">
+        <div class="settings-section-icon" style="background:rgba(27,107,58,0.12);border:1px solid rgba(27,107,58,0.25)">📁</div>
+        <div class="settings-section-title">Secure File-Based Fallback (SFTP)</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:1px">City → Contractor</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:3px;color:var(--text-primary)">Daily Booking Export</div>
+          <div style="font-size:10px;color:var(--text-secondary)">bookings_YYYYMMDD.csv<br>Delivered by 05:00 AWST</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:1px">Contractor → City</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:3px;color:var(--text-primary)">Daily Status Report</div>
+          <div style="font-size:10px;color:var(--text-secondary)">status_YYYYMMDD.csv<br>Submitted by 20:00 AWST</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:1px">Monthly</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:3px;color:var(--text-primary)">Performance Report</div>
+          <div style="font-size:10px;color:var(--text-secondary)">report_YYYY_MM.pdf/.xlsx<br>By 5th of month</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /settings-drawer-body -->
+</div><!-- /settings-drawer -->
+
+</body>
+</html>
