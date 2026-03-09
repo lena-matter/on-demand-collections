@@ -213,8 +213,8 @@
     }
     .hero-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
+      grid-template-columns: 1fr;
+      gap: 48px;
       align-items: center;
     }
     .hero-badge {
@@ -312,8 +312,8 @@
     .stirling-viz {
       position: relative;
       width: 100%;
-      aspect-ratio: 1 / 1;
-      max-width: 520px;
+      aspect-ratio: 16 / 9;
+      max-width: 1100px;
       margin: 0 auto;
     }
     .stirling-glow {
@@ -1051,8 +1051,8 @@
        RESPONSIVE
     ═══════════════════════════════════════════ */
     @media (max-width: 1024px) {
-      .hero-grid      { grid-template-columns: 1fr; gap: 48px; }
-      .stirling-viz   { max-width: 380px; }
+      .hero-grid      { grid-template-columns: 1fr; gap: 36px; }
+      .stirling-viz   { max-width: 100%; aspect-ratio: 4 / 3; }
       .stirling-detail-grid { grid-template-columns: 1fr; }
       .bin-panel-grid { grid-template-columns: 1fr; }
       .op-cards-grid  { grid-template-columns: repeat(2, 1fr); }
@@ -1069,6 +1069,8 @@
       section { padding: 64px 0; }
       .op-cards-grid  { grid-template-columns: 1fr; }
       .features-grid  { grid-template-columns: 1fr; }
+      #pricing .container > div:nth-child(2) { grid-template-columns: 1fr !important; }
+      #pricing .container > div:last-child > div:last-child { grid-template-columns: 1fr !important; }
       .metrics-grid   { grid-template-columns: 1fr 1fr; }
       .footer-grid    { grid-template-columns: 1fr; }
       .cta-box        { padding: 40px 24px; }
@@ -1390,6 +1392,7 @@
     <li><a href="#stirling">ThinkOS - On Demand</a></li>
     <li><a href="#bins">Bin Sizes</a></li>
     <li><a href="#operators">Operators</a></li>
+    <li><a href="#pricing">Pricing</a></li>
     <li><a href="#how">How It Works</a></li>
     <li><a href="#features">Features</a></li>
     <li><a href="#cta" class="nav-cta">Get Started</a></li>
@@ -1401,8 +1404,8 @@
   <div class="container">
     <div class="hero-grid">
 
-      <!-- Left: Copy -->
-      <div>
+      <!-- Hero Copy -->
+      <div style="text-align:center; max-width:800px; margin:0 auto;">
         <button class="hero-badge" onclick="openCouncilModal()" title="View participating councils">
           <div class="hero-badge-dot"></div>
           On Demand · Australia-Wide
@@ -1413,11 +1416,11 @@
           <span class="gradient-text">On Your Schedule.</span>
         </h1>
         <p class="hero-sub">
-          Australia's most flexible commercial bin collection service for councils and businesses.
-          120&nbsp;lt and 240&nbsp;lt wheelie bins collected exactly when you need them —
-          no fixed routes, no missed lifts, no phone calls, no emails — Fully Automated.
+          Australia's most flexible commercial bin collection service.
+          120&nbsp;lt and 240&nbsp;lt wheelie bins collected exactly when you need them serviced.
+          No more overflows, no 'air' empties, no phone calls/emails — FULLY AUTOMATED just in time, best service.
         </p>
-        <div class="hero-actions">
+        <div class="hero-actions" style="justify-content:center;">
           <a href="https://stirlingcollectionsystem.com.au" target="_blank" rel="noopener" class="btn-primary">
             Explore ThinkOS - On Demand
             <span>↗</span>
@@ -1427,7 +1430,7 @@
             <span>→</span>
           </a>
         </div>
-        <div class="hero-stats">
+        <div class="hero-stats" style="justify-content:center;">
           <div>
             <div class="hero-stat-num">240 lt</div>
             <div class="hero-stat-label">Large Commercial Bin</div>
@@ -1443,68 +1446,33 @@
         </div>
       </div>
 
-      <!-- Right: ThinkOS Interactive Diagram -->
-      <div class="stirling-viz">
-        <div class="stirling-glow"></div>
-        <div class="stirling-ring stirling-ring-1"></div>
-        <div class="stirling-ring stirling-ring-2"></div>
+      <!-- Right: Stirling Collection System Embed -->
+      <div class="stirling-viz" style="border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--border-subtle); box-shadow: var(--shadow-card), var(--shadow-glow);">
+        <iframe src="stirling-collection-system.html" style="width:100%; height:100%; border:none; border-radius:var(--radius-lg);" title="City of Stirling — On-Demand Commercial Waste Collection System"></iframe>
+      </div>
 
-        <!-- Live badge -->
-        <div class="stirling-live"><div class="live-dot"></div>Live System</div>
-
-        <!-- Central Core -->
-        <div class="stirling-core" onclick="coreClick()" title="ThinkOS - On Demand">
-          <div class="stirling-core-scan"></div>
-          <div class="stirling-core-inner">
-            <div class="stirling-core-icon">🗑️</div>
-            <div class="stirling-core-title">ThinkOS</div>
-            <div class="stirling-core-sub">On Demand</div>
-          </div>
-        </div>
-
-        <!-- Orbital Nodes -->
-        <div class="stirling-nodes">
-          <div class="s-node s-node-top" onclick="activateNode(this)">
-            <span class="s-node-icon">📡</span>
-            <span class="s-node-label">Smart<br/>Sensor</span>
-            <div class="node-tooltip">RFID & fill-level sensing</div>
-          </div>
-          <div class="s-node s-node-tr" onclick="activateNode(this)">
-            <span class="s-node-icon">📱</span>
-            <span class="s-node-label">Driver<br/>App</span>
-            <div class="node-tooltip">Real-time driver manifest</div>
-          </div>
-          <div class="s-node s-node-right" onclick="activateNode(this)">
-            <span class="s-node-icon">🗺️</span>
-            <span class="s-node-label">Route<br/>AI</span>
-            <div class="node-tooltip">Dynamic route optimisation</div>
-          </div>
-          <div class="s-node s-node-br" onclick="activateNode(this)">
-            <span class="s-node-icon">📊</span>
-            <span class="s-node-label">Council<br/>Portal</span>
-            <div class="node-tooltip">Council reporting dashboard</div>
-          </div>
-          <div class="s-node s-node-bottom" onclick="activateNode(this)">
-            <span class="s-node-icon">♻️</span>
-            <span class="s-node-label">Waste<br/>Audit</span>
-            <div class="node-tooltip">Waste stream analytics</div>
-          </div>
-          <div class="s-node s-node-bl" onclick="activateNode(this)">
-            <span class="s-node-icon">🏢</span>
-            <span class="s-node-label">Business<br/>Portal</span>
-            <div class="node-tooltip">Operator booking & tracking</div>
-          </div>
-          <div class="s-node s-node-left" onclick="activateNode(this)">
-            <span class="s-node-icon">⏰</span>
-            <span class="s-node-label">On<br/>Demand</span>
-            <div class="node-tooltip">Request same-day collection</div>
-          </div>
-          <div class="s-node s-node-tl" onclick="activateNode(this)">
-            <span class="s-node-icon">📋</span>
-            <span class="s-node-label">Compliance<br/>Log</span>
-            <div class="node-tooltip">Audit-ready service records</div>
-          </div>
-        </div>
+      <!-- Demo CTA -->
+      <div style="text-align:center; margin-top:32px;">
+        <a href="file:///Users/graphics2/Library/Application%20Support/Claude/local-agent-mode-sessions/184af126-81b8-4bf8-a4d8-d56bc324e462/1bcc10b3-e375-4545-8bdb-ae8badac7c0f/local_f794881b-fcdb-43dd-8d01-e20fa90d389e/outputs/stirling-collection-system.html" target="_blank" rel="noopener" style="
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 16px 36px;
+          background: var(--gradient-brand);
+          color: #fff;
+          font-family: var(--font-display);
+          font-size: 16px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          text-decoration: none;
+          border-radius: var(--radius-md);
+          box-shadow: 0 4px 24px rgba(14,165,233,0.35), 0 0 60px rgba(124,58,237,0.15);
+          transition: all 0.3s ease;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 32px rgba(14,165,233,0.45), 0 0 80px rgba(124,58,237,0.2)';" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 24px rgba(14,165,233,0.35), 0 0 60px rgba(124,58,237,0.15)';">
+          DEMO — GO DEEPER
+          <span style="font-size:20px;">↗</span>
+        </a>
       </div>
     </div>
   </div>
@@ -1533,6 +1501,141 @@
     </div>
   </div>
 </div>
+
+<!-- ═══════════ PRICING ═══════════ -->
+<section id="pricing" style="background: var(--bg-surface); padding: 96px 0;">
+  <div class="container">
+    <div class="section-header">
+      <div class="label label-green">Transparent Pricing</div>
+      <h2>Pay Per <span class="gradient-text">Collection</span></h2>
+      <p>No lock-in contracts. No fixed schedules. Just usage-based pricing per lift — with optional add-ons to match your operational needs.</p>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:28px; max-width:900px; margin:0 auto 56px;">
+
+      <!-- 120lt Card -->
+      <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:40px 32px; text-align:center; position:relative; transition:all 0.3s;" onmouseover="this.style.borderColor='var(--border-strong)'; this.style.boxShadow='var(--shadow-glow)'" onmouseout="this.style.borderColor='var(--glass-border)'; this.style.boxShadow='none'">
+        <div style="font-size:48px; margin-bottom:12px;">🪣</div>
+        <h3 style="font-family:var(--font-display); font-size:22px; margin-bottom:4px;">120 Litre</h3>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:24px;">Compact Commercial Bin</div>
+        <div style="margin-bottom:8px;">
+          <span style="font-family:var(--font-display); font-size:42px; font-weight:800; background:var(--gradient-brand); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">$9.90</span>
+          <span style="font-size:14px; color:var(--text-muted);"> +GST / lift</span>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:28px;">Standard collection — next business day</div>
+        <ul style="list-style:none; text-align:left; display:flex; flex-direction:column; gap:12px; margin-bottom:32px; font-size:13px; color:var(--text-secondary);">
+          <li>✓ &nbsp;RFID-verified lift confirmation</li>
+          <li>✓ &nbsp;Real-time push notification</li>
+          <li>✓ &nbsp;Digital proof of service</li>
+          <li>✓ &nbsp;Automated invoicing per lift</li>
+          <li>✓ &nbsp;General, recycling or organic streams</li>
+        </ul>
+        <a href="#cta" style="display:block; padding:14px; background:var(--gradient-brand); color:#fff; font-weight:700; font-size:14px; border-radius:var(--radius-sm); text-decoration:none; margin-bottom:12px; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">Get Started</a>
+        <!-- ThinkNOW -->
+        <div style="border-top:1px solid var(--border-subtle); padding-top:16px; margin-top:8px;">
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:10px 20px; background:var(--gradient-warm); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform=''">
+            <span style="font-size:14px;">⚡</span>
+            <span style="color:#fff; font-weight:700; font-size:13px; letter-spacing:0.04em;">ThinkNOW</span>
+            <span style="color:rgba(255,255,255,0.75); font-size:12px; margin-left:4px;">+$10.00</span>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">Priority service within 4 hours</div>
+        </div>
+      </div>
+
+      <!-- 240lt Card -->
+      <div style="background:var(--glass-bg); border:2px solid var(--border-strong); border-radius:var(--radius-lg); padding:40px 32px; text-align:center; position:relative; box-shadow:var(--shadow-glow); transition:all 0.3s;">
+        <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--gradient-brand); color:#fff; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:5px 18px; border-radius:20px;">Most Popular</div>
+        <div style="font-size:48px; margin-bottom:12px;">🗑️</div>
+        <h3 style="font-family:var(--font-display); font-size:22px; margin-bottom:4px;">240 Litre</h3>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:24px;">High-Volume Commercial Bin</div>
+        <div style="margin-bottom:8px;">
+          <span style="font-family:var(--font-display); font-size:42px; font-weight:800; background:var(--gradient-brand); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">$13.90</span>
+          <span style="font-size:14px; color:var(--text-muted);"> +GST / lift</span>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:28px;">Standard collection — next business day</div>
+        <ul style="list-style:none; text-align:left; display:flex; flex-direction:column; gap:12px; margin-bottom:32px; font-size:13px; color:var(--text-secondary);">
+          <li>✓ &nbsp;RFID-verified lift confirmation</li>
+          <li>✓ &nbsp;Real-time push notification</li>
+          <li>✓ &nbsp;Digital proof of service</li>
+          <li>✓ &nbsp;Automated invoicing per lift</li>
+          <li>✓ &nbsp;General, recycling or organic streams</li>
+        </ul>
+        <a href="#cta" style="display:block; padding:14px; background:var(--gradient-brand); color:#fff; font-weight:700; font-size:14px; border-radius:var(--radius-sm); text-decoration:none; margin-bottom:12px; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">Get Started</a>
+        <!-- ThinkNOW -->
+        <div style="border-top:1px solid var(--border-subtle); padding-top:16px; margin-top:8px;">
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:10px 20px; background:var(--gradient-warm); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform=''">
+            <span style="font-size:14px;">⚡</span>
+            <span style="color:#fff; font-weight:700; font-size:13px; letter-spacing:0.04em;">ThinkNOW</span>
+            <span style="color:rgba(255,255,255,0.75); font-size:12px; margin-left:4px;">+$10.00</span>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">Priority service within 4 hours</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add-Ons Section -->
+    <div style="max-width:900px; margin:0 auto;">
+      <div style="text-align:center; margin-bottom:36px;">
+        <div class="label label-purple">Add-Ons</div>
+        <h3 style="font-family:var(--font-display); font-size:24px; margin-top:10px;">Enhance Your Service</h3>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px;">
+
+        <!-- Monthly Reporting -->
+        <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+          <div style="font-size:28px; margin-bottom:12px;">📊</div>
+          <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">Monthly Reporting</h4>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-primary); margin-bottom:8px;">$49<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /mo</span></div>
+          <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">Full monthly waste volume report by site, stream, and bin size. Includes lift counts, weight trends, cost breakdown, and exportable PDF/CSV data.</p>
+        </div>
+
+        <!-- Sustainability Reporting -->
+        <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+          <div style="font-size:28px; margin-bottom:12px;">🌿</div>
+          <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">Sustainability Reporting</h4>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-tertiary); margin-bottom:8px;">$79<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /mo</span></div>
+          <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">ESG-ready reports: landfill diversion rates, CO₂ offsets, recycling contamination analysis, and circular economy metrics aligned to NGER and council KPIs.</p>
+        </div>
+
+        <!-- Smart Sensor -->
+        <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+          <div style="font-size:28px; margin-bottom:12px;">📡</div>
+          <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">Smart Sensor</h4>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-primary); margin-bottom:8px;">$12<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /bin/mo</span></div>
+          <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">IoT fill-level sensor fitted to each bin. Auto-triggers collection when 80% full — eliminates overflows and empty pickups entirely.</p>
+        </div>
+
+        <!-- Facilities Management Integration -->
+        <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+          <div style="font-size:28px; margin-bottom:12px;">🏗️</div>
+          <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">FM Integration</h4>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-secondary); margin-bottom:8px;">$99<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /mo</span></div>
+          <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">Connect ThinkOS to your FM platform (MEX, FMW, Archibus). Sync work orders, asset registers, and service logs for closed-loop facilities management.</p>
+        </div>
+
+        <!-- Waste Audit -->
+        <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+          <div style="font-size:28px; margin-bottom:12px;">🔬</div>
+          <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">Waste Audit</h4>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-warm); margin-bottom:8px;">$299<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /quarter</span></div>
+          <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">Quarterly on-site waste audit with stream composition analysis, contamination scoring, and actionable recommendations to reduce costs and improve diversion.</p>
+        </div>
+
+        <!-- API Access -->
+        <div style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:28px; transition:all 0.25s;" onmouseover="this.style.borderColor='var(--border-strong)'" onmouseout="this.style.borderColor='var(--glass-border)'">
+          <div style="font-size:28px; margin-bottom:12px;">🔗</div>
+          <h4 style="font-family:var(--font-display); font-size:15px; margin-bottom:6px;">API Access</h4>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent-primary); margin-bottom:8px;">$59<span style="font-size:12px; font-weight:400; color:var(--text-muted);"> /mo</span></div>
+          <p style="font-size:12px; color:var(--text-secondary); line-height:1.6;">REST API access for ERP, property management, or BMS integration. Webhooks for real-time collection events, billing sync, and bin fleet telemetry.</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
 
 <!-- ═══════════ STIRLING SYSTEM ═══════════ -->
 <section id="stirling">
